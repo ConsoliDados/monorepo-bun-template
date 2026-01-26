@@ -85,5 +85,9 @@ temp/
 *.cert
 .certstore/
 
+# Development notes and temporary docs
+DESENVOLVIMENTO.md
+.example-dev-output.md
+
 # Bun
 bun.lockb
