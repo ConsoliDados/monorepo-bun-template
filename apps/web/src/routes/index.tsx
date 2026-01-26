@@ -10,9 +10,10 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
+const backendURl = "http://localhost:3333";
 // Fetch function for users
 async function fetchUsers(): Promise<User[]> {
-	const response = await fetch("http://localhost:3333/api/users");
+	const response = await fetch(`${backendURl}/api/users`);
 	if (!response.ok) {
 		throw new Error("Failed to fetch users");
 	}
@@ -103,7 +104,7 @@ function Home() {
 							</Card>
 						</Link>
 
-						<Link to="/server-function" className="group">
+						<Link to="/server-actions" className="group">
 							<Card className="h-full hover:shadow-lg transition-all hover:scale-105 cursor-pointer">
 								<CardHeader>
 									<CardTitle className="group-hover:text-purple-600 transition-colors">
