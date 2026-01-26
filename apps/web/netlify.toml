@@ -1,0 +1,16 @@
+[build]
+  command = "bun run build"
+  publish = "dist/client"
+  functions = "dist/server"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/netlify"
+  status = 200
+
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["dist/**"]
