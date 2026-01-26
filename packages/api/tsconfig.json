@@ -1,0 +1,5 @@
+{
+  "extends": "@monorepo/config/tsconfig-node",
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
