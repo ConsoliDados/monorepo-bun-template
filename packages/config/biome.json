@@ -34,6 +34,16 @@
       "trailingCommas": "es5"
     }
   },
+  "css": {
+    "linter": {
+      "enabled": true,
+      "rules": {
+        "suspicious": {
+          "noUnknownAtRules": "off"
+        }
+      }
+    }
+  },
   "organizeImports": {
     "enabled": true
   }
