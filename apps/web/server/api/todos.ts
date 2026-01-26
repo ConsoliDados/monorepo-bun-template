@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 
-// Simulando um banco de dados em memória
+// Simulating an in-memory database
 let todos: Array<{
 	id: number;
 	title: string;
@@ -9,19 +9,19 @@ let todos: Array<{
 }> = [
 	{
 		id: 1,
-		title: "Configurar monorepo com Bun",
+		title: "Setup monorepo with Bun",
 		completed: true,
 		createdAt: new Date().toISOString(),
 	},
 	{
 		id: 2,
-		title: "Implementar SSR com Vite",
+		title: "Implement SSR with Vite",
 		completed: true,
 		createdAt: new Date().toISOString(),
 	},
 	{
 		id: 3,
-		title: "Criar exemplos de páginas",
+		title: "Create example pages",
 		completed: false,
 		createdAt: new Date().toISOString(),
 	},
@@ -31,12 +31,12 @@ let nextId = 4;
 
 const app = new Hono();
 
-// GET /api/todos - Lista todos
+// GET /api/todos - List all todos
 app.get("/", (c) => {
 	return c.json({ todos, count: todos.length });
 });
 
-// POST /api/todos - Cria novo todo
+// POST /api/todos - Create new todo
 app.post("/", async (c) => {
 	const body = await c.req.json();
 
@@ -56,7 +56,7 @@ app.post("/", async (c) => {
 	return c.json({ todo: newTodo }, 201);
 });
 
-// PATCH /api/todos/:id - Atualiza todo
+// PATCH /api/todos/:id - Update todo
 app.patch("/:id", async (c) => {
 	const id = Number.parseInt(c.req.param("id"));
 	const body = await c.req.json();
@@ -78,7 +78,7 @@ app.patch("/:id", async (c) => {
 	return c.json({ todo });
 });
 
-// DELETE /api/todos/:id - Remove todo
+// DELETE /api/todos/:id - Delete todo
 app.delete("/:id", (c) => {
 	const id = Number.parseInt(c.req.param("id"));
 	const index = todos.findIndex((t) => t.id === id);

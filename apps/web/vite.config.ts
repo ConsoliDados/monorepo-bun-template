@@ -4,8 +4,10 @@ import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import tsConfigPaths from "vite-tsconfig-paths";
+import { serverActions } from "./plugins/server-actions";
+import { env } from "./lib/env";
 
-const port = Number(process.env.FRONTEND_PORT) || 3000;
+const port = env.frontendPort;
 const host = "localhost";
 
 const ssrBuild = {
@@ -42,6 +44,7 @@ const clientBuild = {
 export default defineConfig(({ mode }) => {
 	return {
 		plugins: [
+			serverActions(),
 			tanstackRouter({
 				target: "react",
 				autoCodeSplitting: true,
@@ -65,7 +68,7 @@ export default defineConfig(({ mode }) => {
 			port,
 			proxy: {
 				"/api": {
-					target: `http://localhost:${process.env.BACKEND_PORT || 3333}`,
+					target: env.backendUrl,
 					changeOrigin: true,
 				},
 			},

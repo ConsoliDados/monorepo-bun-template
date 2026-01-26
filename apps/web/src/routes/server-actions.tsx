@@ -1,64 +1,29 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import {
+	createTodo,
+	deleteTodo,
+	fetchTodos,
+	toggleTodo,
+} from "./-actions/todos-actions.server";
 
-export const Route = createFileRoute("/server-function")({
+export const Route = createFileRoute("/server-actions")({
 	component: ServerFunctionPage,
 });
-
-interface Todo {
-	id: number;
-	title: string;
-	completed: boolean;
-	createdAt: string;
-}
-
-// API Functions (Server Functions)
-async function fetchTodos(): Promise<{ todos: Todo[]; count: number }> {
-	const response = await fetch("/api/todos");
-	if (!response.ok) throw new Error("Failed to fetch todos");
-	return response.json();
-}
-
-async function createTodo(title: string): Promise<{ todo: Todo }> {
-	const response = await fetch("/api/todos", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ title }),
-	});
-	if (!response.ok) throw new Error("Failed to create todo");
-	return response.json();
-}
-
-async function toggleTodo(id: number, completed: boolean): Promise<{ todo: Todo }> {
-	const response = await fetch(`/api/todos/${id}`, {
-		method: "PATCH",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ completed }),
-	});
-	if (!response.ok) throw new Error("Failed to update todo");
-	return response.json();
-}
-
-async function deleteTodo(id: number): Promise<{ todo: Todo }> {
-	const response = await fetch(`/api/todos/${id}`, {
-		method: "DELETE",
-	});
-	if (!response.ok) throw new Error("Failed to delete todo");
-	return response.json();
-}
 
 function ServerFunctionPage() {
 	const [newTodoTitle, setNewTodoTitle] = useState("");
 	const queryClient = useQueryClient();
 
-	// Query para buscar todos
+	// Query to fetch todos
 	const { data, isLoading, error } = useQuery({
 		queryKey: ["todos"],
 		queryFn: fetchTodos,
 	});
+	console.log("data", data);
 
-	// Mutation para criar todo
+	// Mutation to create todo
 	const createMutation = useMutation({
 		mutationFn: createTodo,
 		onSuccess: () => {
@@ -67,7 +32,7 @@ function ServerFunctionPage() {
 		},
 	});
 
-	// Mutation para toggle todo
+	// Mutation to toggle todo
 	const toggleMutation = useMutation({
 		mutationFn: ({ id, completed }: { id: number; completed: boolean }) =>
 			toggleTodo(id, completed),
@@ -76,7 +41,7 @@ function ServerFunctionPage() {
 		},
 	});
 
-	// Mutation para deletar todo
+	// Mutation to delete todo
 	const deleteMutation = useMutation({
 		mutationFn: deleteTodo,
 		onSuccess: () => {
@@ -95,25 +60,22 @@ function ServerFunctionPage() {
 		<div className="max-w-4xl mx-auto px-4 py-8">
 			<h1 className="text-3xl font-bold mb-2">Server Functions Example</h1>
 			<p className="text-slate-600 mb-8">
-				Esta página demonstra chamadas a server functions (API routes) usando
-				TanStack Query. Os dados são gerenciados no servidor e sincronizados
-				automaticamente.
+				This page demonstrates calls to server actions (API routes) using
+				TanStack Query. Data is managed on the server and synchronized
+				automatically.
 			</p>
 
 			<div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
-				<h3 className="font-semibold text-purple-900 mb-2">
-					Como funciona:
-				</h3>
+				<h3 className="font-semibold text-purple-900 mb-2">How it works:</h3>
 				<ul className="text-sm text-purple-800 space-y-1 list-disc list-inside">
 					<li>
-						Server functions são implementadas como API routes no servidor
-						(Hono)
+						Server actions are implemented as API routes on the server (Hono)
 					</li>
 					<li>
-						TanStack Query gerencia cache, loading states, e revalidação
+						TanStack Query manages cache, loading states, and revalidation
 					</li>
-					<li>Mutations atualizam o servidor e invalidam o cache local</li>
-					<li>Estado é persistido no servidor (in-memory neste exemplo)</li>
+					<li>Mutations update the server and invalidate the local cache</li>
+					<li>State is persisted on the server (in-memory in this example)</li>
 				</ul>
 			</div>
 
@@ -127,7 +89,7 @@ function ServerFunctionPage() {
 					)}
 				</h2>
 
-				{/* Form para adicionar novo todo */}
+				{/* Form to add new todo */}
 				<form onSubmit={handleSubmit} className="mb-6">
 					<div className="flex gap-2">
 						<input
@@ -153,7 +115,7 @@ function ServerFunctionPage() {
 					)}
 				</form>
 
-				{/* Lista de todos */}
+				{/* Todo list */}
 				{isLoading && (
 					<div className="text-center py-8">
 						<div className="inline-block w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
@@ -204,7 +166,7 @@ function ServerFunctionPage() {
 								</span>
 
 								<span className="text-xs text-slate-400">
-									{new Date(todo.createdAt).toLocaleDateString("pt-BR", {
+									{new Date(todo.createdAt).toLocaleDateString("en-US", {
 										day: "2-digit",
 										month: "short",
 									})}
@@ -250,25 +212,25 @@ function ServerFunctionPage() {
 
 			<div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
 				<h3 className="font-semibold text-blue-900 mb-2">
-					Recursos demonstrados:
+					Featured resources:
 				</h3>
 				<ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
 					<li>
-						<strong>useQuery</strong> - Fetch de dados com cache automático
+						<strong>useQuery</strong> - Data fetching with automatic caching
 					</li>
 					<li>
-						<strong>useMutation</strong> - Operações de escrita (POST, PATCH,
+						<strong>useMutation</strong> - Write operations (POST, PATCH,
 						DELETE)
 					</li>
 					<li>
-						<strong>invalidateQueries</strong> - Revalidação automática após
+						<strong>invalidateQueries</strong> - Automatic revalidation after
 						mutations
 					</li>
 					<li>
-						<strong>Loading states</strong> - Estados de carregamento e erro
+						<strong>Loading states</strong> - Loading and error states
 					</li>
 					<li>
-						<strong>Optimistic updates</strong> - Feedback imediato ao usuário
+						<strong>Optimistic updates</strong> - Immediate feedback to the user
 					</li>
 				</ul>
 			</div>

@@ -7,13 +7,16 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@monorepo/ui/card";
-import { useQuery } from "@tanstack/react-query";
+// import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+
+// import { env } from "../../lib/env";
 
 const backendURl = "http://localhost:3333";
 // Fetch function for users
 async function fetchUsers(): Promise<User[]> {
 	const response = await fetch(`${backendURl}/api/users`);
+	console.log("Fetching users");
 	if (!response.ok) {
 		throw new Error("Failed to fetch users");
 	}
@@ -22,28 +25,34 @@ async function fetchUsers(): Promise<User[]> {
 
 export const Route = createFileRoute("/")({
 	component: Home,
-	loader: ({ context }) => {
+	loader: async ({ context }) => {
+		console.log("Running loader");
+		console.log("context", context);
 		// Prefetch data for SSR
-		context.queryClient.prefetchQuery({
-			queryKey: ["users"],
-			queryFn: fetchUsers,
-		});
+		// context.queryClient.prefetchQuery({
+		// 	queryKey: ["users"],
+		// 	queryFn: fetchUsers,
+		// });
+		const usersData = await fetchUsers();
+		return { usersData, loadedAt: new Date().toISOString() };
 	},
 });
 
 function Home() {
-	const { data: users = [], isLoading } = useQuery({
-		queryKey: ["users"],
-		queryFn: fetchUsers,
-	});
+	const { usersData } = Route.useLoaderData();
 
-	if (isLoading) {
-		return (
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-				<div className="text-center">Loading...</div>
-			</div>
-		);
-	}
+	// const { data: usersData = [], isLoading } = useQuery({
+	// 	queryKey: ["users"],
+	// 	queryFn: fetchUsers,
+	// });
+	//
+	// if (isLoading) {
+	// 	return (
+	// 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+	// 			<div className="text-center">Loading...</div>
+	// 		</div>
+	// 	);
+	// }
 
 	return (
 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -78,8 +87,8 @@ function Home() {
 								</CardHeader>
 								<CardContent>
 									<p className="text-sm text-slate-600">
-										Demonstra como fazer SSR com TanStack Router, carregando
-										dados no servidor antes de renderizar.
+										Demonstrates SSR with TanStack Router, loading data on the
+										server before rendering.
 									</p>
 								</CardContent>
 							</Card>
@@ -97,8 +106,8 @@ function Home() {
 								</CardHeader>
 								<CardContent>
 									<p className="text-sm text-slate-600">
-										Exemplos de componentes interativos (countdown, formulário)
-										que são hidratados no cliente.
+										Examples of interactive components (countdown, form) that
+										are hydrated on the client.
 									</p>
 								</CardContent>
 							</Card>
@@ -108,7 +117,7 @@ function Home() {
 							<Card className="h-full hover:shadow-lg transition-all hover:scale-105 cursor-pointer">
 								<CardHeader>
 									<CardTitle className="group-hover:text-purple-600 transition-colors">
-										Server Functions
+										Server Actions
 									</CardTitle>
 									<CardDescription>
 										API calls with TanStack Query
@@ -116,7 +125,7 @@ function Home() {
 								</CardHeader>
 								<CardContent>
 									<p className="text-sm text-slate-600">
-										Todo list com CRUD completo, demonstrando mutations e cache
+										Todo list with full CRUD, demonstrating mutations and cache
 										management.
 									</p>
 								</CardContent>
@@ -135,13 +144,12 @@ function Home() {
 							<CardHeader>
 								<CardTitle>Elysia Backend</CardTitle>
 								<CardDescription>
-									Fast and type-safe backend with Bun
+									Ultra-fast and type-safe backend with Bun
 								</CardDescription>
 							</CardHeader>
 							<CardContent>
 								<p className="text-sm text-slate-600">
-									Backend rodando em Elysia com hot reload e tipos
-									compartilhados.
+									Backend running on Elysia with hot reload and shared types.
 								</p>
 							</CardContent>
 						</Card>
@@ -155,8 +163,8 @@ function Home() {
 							</CardHeader>
 							<CardContent>
 								<p className="text-sm text-slate-600">
-									SSR com Hono + Vite, com adapters para Vercel, Netlify,
-									Cloudflare e Docker.
+									SSR with Hono + Vite, with adapters for Vercel, Netlify,
+									Cloudflare, and Docker. Javascript runtime agnostic.
 								</p>
 							</CardContent>
 						</Card>
@@ -170,8 +178,8 @@ function Home() {
 							</CardHeader>
 							<CardContent>
 								<p className="text-sm text-slate-600">
-									Frontend com React, Vite, TanStack Router e componentes
-									shadcn/ui.
+									Frontend with React, Vite, TanStack Router, and shadcn/ui
+									components.
 								</p>
 							</CardContent>
 						</Card>
@@ -185,7 +193,8 @@ function Home() {
 							</CardHeader>
 							<CardContent>
 								<p className="text-sm text-slate-600">
-									File-based routing com auto code-splitting e typed contexts.
+									File-based routing with auto code-splitting and typed
+									contexts.
 								</p>
 							</CardContent>
 						</Card>
@@ -199,7 +208,7 @@ function Home() {
 							</CardHeader>
 							<CardContent>
 								<p className="text-sm text-slate-600">
-									Gerenciamento de estado assíncrono com cache, mutations e SSR
+									Async state management with cache, mutations, and SSR
 									prefetching.
 								</p>
 							</CardContent>
@@ -214,7 +223,7 @@ function Home() {
 							</CardHeader>
 							<CardContent>
 								<p className="text-sm text-slate-600">
-									Packages compartilhados usados diretamente como TypeScript.
+									Shared packages used directly as TypeScript.
 								</p>
 							</CardContent>
 						</Card>
@@ -226,8 +235,14 @@ function Home() {
 					<h2 className="text-2xl font-bold text-slate-900 mb-4">
 						Users from Backend (Elysia)
 					</h2>
+					<div className="space-y-2 mb-2">
+						<p>
+							This data was fetched from the backend during server execution.
+						</p>
+					</div>
+
 					<div className="space-y-2">
-						{users.map((user) => (
+						{usersData.map((user) => (
 							<Card key={user.id}>
 								<CardContent className="p-4">
 									<div className="flex items-center justify-between">

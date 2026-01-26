@@ -16,7 +16,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 	head: ({ match }) => ({
 		links: [
 			{ rel: "icon", href: "/favicon.ico" },
-			...match.context.appCssHrefs.map((href) => ({
+			// biome-ignore lint/style/noNonNullAssertion: It's fine
+			...match.context.appCssHrefs!.map((href) => ({
 				rel: "stylesheet",
 				href,
 				"data-app-css": "1",
@@ -24,7 +25,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 		],
 		meta: [
 			{
-				title: "Monorepo Bun - React + Vite + TanStack Router + Hono SSR",
+				title:
+					"Monorepo Bun - React + Vite + TanStack Router + Hono SSR + Elysia",
 			},
 			{
 				charSet: "UTF-8",
@@ -116,14 +118,14 @@ function RootComponent() {
 											Client-Side
 										</Link>
 										<Link
-											to="/server-function"
+											to="/server-actions"
 											className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
 											activeProps={{
 												className:
 													"px-4 py-2 text-sm font-medium text-purple-700 bg-purple-50 rounded-lg",
 											}}
 										>
-											Server Functions
+											Server Functions/Actions
 										</Link>
 									</div>
 								</div>
@@ -134,7 +136,7 @@ function RootComponent() {
 						</main>
 					</div>
 					<Suspense>
-						<TanStackRouterDevtools position="bottom-right" />
+						<TanStackRouterDevtools position="bottom-left" />
 						<ReactQueryDevtools position="bottom" />
 					</Suspense>
 				</QueryClientProvider>

@@ -1,11 +1,14 @@
 {
   "name": "monorepo-bun",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "concurrently -n \"server,web\" -c \"blue,green\" \"bun run --filter server dev\" \"bun run --filter web dev\"",
+    "dev": "concurrently -n \"server,web\" -c \"blue,green\" \"bun run --filter server dev\" \"bun run --env-file=.env --filter web dev\"",
     "dev:server": "bun run --filter server dev",
-    "dev:web": "bun run --filter web dev",
+    "dev:web": "bun run --env-file=.env --filter web dev",
     "lint": "bun run --filter '*' lint",
     "format": "bun run --filter '*' format",
     "typecheck": "bun run --filter '*' typecheck"

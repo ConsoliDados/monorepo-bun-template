@@ -20,15 +20,17 @@ export async function createSSRHandler(options: SSROptions) {
 	// In dev mode, the plugin handles SSR automatically
 	// In production, we need to handle it explicitly
 	if (isProduction) {
+		// @ts-expect-error - This file only exists after build
 		const { render } = await import("../dist/server/index.js");
 
 		app.use("*", async (c) => {
 			try {
 				const response = await render(c.req.raw);
 				return response;
-			} catch (e: any) {
-				console.error("SSR Error:", e.stack);
-				return c.text(e.stack, 500);
+			} catch (e: unknown) {
+				const error = e as Error;
+				console.error("SSR Error:", error.stack);
+				return c.text(error.stack || String(e), 500);
 			}
 		});
 	}

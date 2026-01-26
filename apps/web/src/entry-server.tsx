@@ -1,14 +1,15 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { QueryClient } from "@tanstack/react-query";
 import {
 	createRequestHandler,
-	renderRouterToString,
 	RouterServer,
+	renderRouterToString,
 } from "@tanstack/react-router/ssr/server";
 import { Hono } from "hono";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { handleServerAction } from "../server/actions-handler";
+import { loadApiRoutes } from "../server/api-loader";
 import { createRouter } from "./router";
-import todosApi from "../server/api/todos";
 
 interface ViteManifestChunk {
 	file: string;
@@ -71,8 +72,15 @@ function getAppCssHrefs(): string[] {
 // Create Hono app
 const app = new Hono();
 
-// API Routes
-app.route("/api/todos", todosApi);
+// Automatically load all API routes from server/api directory
+await loadApiRoutes(app);
+
+// Server Actions Handler
+console.log("[ENTRY-SERVER] Registering /__server-actions endpoint");
+app.post("/__server-actions", async (c) => {
+	console.log("[ENTRY-SERVER] /__server-actions endpoint called");
+	return handleServerAction(c);
+});
 
 // SSR Route Handler
 app.use("*", async (c) => {
