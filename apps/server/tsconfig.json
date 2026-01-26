@@ -1,0 +1,11 @@
+{
+	"extends": "@monorepo/config/tsconfig-node",
+	"compilerOptions": {
+		"paths": {
+			"@monorepo/api": ["../../packages/api/src/index.ts"],
+			"@monorepo/api/*": ["../../packages/api/src/*"]
+		}
+	},
+	"include": ["src/**/*"],
+	"exclude": ["node_modules"]
+}
