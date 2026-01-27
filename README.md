@@ -160,25 +160,72 @@ The Vite plugin automatically:
 
 ## 🔧 Environment Variables
 
-Environment variables are validated using Zod. Configure them in `.env`:
+This project uses two separate environment systems, both validated with Zod for type-safety and runtime validation.
 
-```bash
-# Server Ports
-FRONTEND_PORT=3000
-BACKEND_PORT=3333
+### `env` - Server-Only Variables
 
-# API URLs
-FRONTEND_URL=http://localhost:3000
-BACKEND_URL=http://localhost:3333
-```
-
-Access them type-safely:
+**Use ONLY in server-side code** (API routes, server actions, loaders on server). These variables are **NOT exposed to the browser**.
 
 ```typescript
 import { env } from './lib/env';
 
-console.log(env.frontendUrl);  // Type-safe and validated!
+// ✅ Use in server-side code
+export async function fetchData() {
+  const response = await fetch(`${env.backendUrl}/api/data`);
+  return response.json();
+}
 ```
+
+**Configure in `.env`:**
+```bash
+FRONTEND_PORT=3000
+BACKEND_PORT=3333
+FRONTEND_URL=http://localhost:3000
+BACKEND_URL=http://localhost:3333
+```
+
+**Examples:** Database URLs, API secrets, server ports
+
+### `env.public` - Public Variables (Client-Safe)
+
+**Safe to expose to the browser**. Use in client components, pages, or anywhere that runs in the browser.
+
+**Can be used on server?** Yes, but **NOT recommended** - use `env` instead for server-side code.
+
+```typescript
+import { publicEnv } from './lib/env.public';
+
+// ✅ Use in client components
+function MyComponent() {
+  const apiUrl = publicEnv.backendUrl;
+  return <div>API: {apiUrl}</div>;
+}
+```
+
+**Configure in `.env` with `VITE_` prefix:**
+```bash
+VITE_FRONTEND_URL=http://localhost:3000
+VITE_BACKEND_URL=http://localhost:3333
+VITE_API_VERSION=v1
+```
+
+Variables are automatically converted: `VITE_API_VERSION` → `publicEnv.apiVersion` (camelCase)
+
+**Examples:** Public API endpoints, feature flags, client-safe configuration
+
+### Quick Decision Guide
+
+| Use Case | Use This | Import From |
+|----------|----------|-------------|
+| Server actions, API routes, SSR loaders | `env` | `./lib/env` |
+| Client components, browser code | `env.public` | `./lib/env.public` |
+| Secrets (database, API keys) | `env` | `./lib/env` |
+| Public configuration | `env.public` | `./lib/env.public` |
+
+### Learn More
+
+- **[ENV_USAGE.md](apps/web/lib/ENV_USAGE.md)** - Complete usage guide
+- **[ADDING_ENV_VARS.md](apps/web/lib/ADDING_ENV_VARS.md)** - How to add new variables
 
 ## 🛠️ Commands
 
