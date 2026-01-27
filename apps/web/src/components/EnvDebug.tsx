@@ -1,10 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@monorepo/ui/card";
 import { rootRouteId, useRouteContext } from "@tanstack/react-router";
-import type { publicEnv } from "../../lib/env.public";
 
 /**
  * Debug component to display environment variables
- * Demonstrates how to access env from Router Context
+ * Automatically iterates over all public env variables
+ * No need to edit this file when adding new VITE_* variables
  */
 export function EnvDebug() {
 	const { env } = useRouteContext({ from: rootRouteId });
@@ -16,18 +16,12 @@ export function EnvDebug() {
 			</CardHeader>
 			<CardContent>
 				<div className="space-y-1 text-xs font-mono">
-					{Object.keys(env).map((key) => (
+					{Object.entries(env).map(([key, value]) => (
 						<div key={key}>
-							<span className="text-slate-600">{key}</span>{" "}
-							<span className="font-semibold">
-								{env[key as keyof typeof publicEnv]}
-							</span>
+							<span className="text-slate-600">{key}:</span>{" "}
+							<span className="font-semibold">{String(value)}</span>
 						</div>
 					))}
-					<div>
-						<span className="text-slate-600">Environment:</span>{" "}
-						<span className="font-semibold">{env.nodeEnv}</span>
-					</div>
 				</div>
 			</CardContent>
 		</Card>
