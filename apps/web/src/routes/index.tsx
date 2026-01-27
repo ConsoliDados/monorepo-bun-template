@@ -1,4 +1,3 @@
-import type { User } from "@monorepo/api/schemas";
 import { Button } from "@monorepo/ui";
 import {
 	Card,
@@ -7,32 +6,13 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@monorepo/ui/card";
-// import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-
-// import { env } from "../../lib/env";
-
-const backendURl = "http://localhost:3333";
-// Fetch function for users
-async function fetchUsers(): Promise<User[]> {
-	const response = await fetch(`${backendURl}/api/users`);
-	console.log("Fetching users");
-	if (!response.ok) {
-		throw new Error("Failed to fetch users");
-	}
-	return response.json();
-}
+import { fetchUsers } from "./-actions/users-actions.server";
+import { EnvDebug } from "../components/EnvDebug";
 
 export const Route = createFileRoute("/")({
 	component: Home,
-	loader: async ({ context }) => {
-		console.log("Running loader");
-		console.log("context", context);
-		// Prefetch data for SSR
-		// context.queryClient.prefetchQuery({
-		// 	queryKey: ["users"],
-		// 	queryFn: fetchUsers,
-		// });
+	loader: async () => {
 		const usersData = await fetchUsers();
 		return { usersData, loadedAt: new Date().toISOString() };
 	},
@@ -259,6 +239,7 @@ function Home() {
 						))}
 					</div>
 				</div>
+				<EnvDebug />
 			</div>
 		</div>
 	);
