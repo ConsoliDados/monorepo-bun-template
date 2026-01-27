@@ -1,7 +1,7 @@
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import type { Context } from "hono";
 import manifest from "virtual:server-actions-manifest";
+import type { Context } from "hono";
 
 interface ServerActionRequest {
 	actionHash: string;
@@ -62,10 +62,11 @@ export async function handleServerAction(c: Context) {
 		}
 
 		const { filePath, functionName } = actionMeta;
-		console.log(
-			"[ACTIONS-HANDLER] Resolved action:",
-			{ hash: actionHash, file: filePath, function: functionName },
-		);
+		console.log("[ACTIONS-HANDLER] Resolved action:", {
+			hash: actionHash,
+			file: filePath,
+			function: functionName,
+		});
 
 		// Load the module
 		console.log("[ACTIONS-HANDLER] Loading module:", filePath);

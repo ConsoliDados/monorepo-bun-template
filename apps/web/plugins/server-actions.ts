@@ -47,7 +47,7 @@ export function serverActions(): Plugin {
 			manifest.salt = salt;
 			console.log(
 				"[PLUGIN] Server actions salt generated:",
-				salt.substring(0, 8) + "...",
+				`${salt.substring(0, 8)}...`,
 			);
 		},
 
@@ -68,10 +68,10 @@ export function serverActions(): Plugin {
 				const fs = await import("node:fs/promises");
 				const code = await fs.readFile(file, "utf-8");
 
-				const relativePath = relative(resolve(process.cwd(), "src"), file).replace(
-					/\\/g,
-					"/",
-				);
+				const relativePath = relative(
+					resolve(process.cwd(), "src"),
+					file,
+				).replace(/\\/g, "/");
 
 				// Extract exports
 				const exportMatches = code.matchAll(
