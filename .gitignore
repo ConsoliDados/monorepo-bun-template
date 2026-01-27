@@ -73,8 +73,10 @@ Desktop.ini
 # Temporary files
 *.tmp
 *.temp
-tmp/
 temp/
+
+# Planning and context files (not to be committed)
+tmp/
 
 # Docker
 .dockerignore
