@@ -1,3 +1,4 @@
+import { Button } from "@monorepo/ui/components/button";
 import { createFileRoute } from "@tanstack/react-router";
 import { type FormEvent, useEffect, useState } from "react";
 
@@ -54,22 +55,17 @@ function Countdown() {
 			</div>
 
 			<div className="flex gap-3 justify-center">
-				<button
+				<Button
 					type="button"
 					onClick={handleStart}
 					disabled={isRunning || count === 0}
-					className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
 				>
 					Start
-				</button>
+				</Button>
 
-				<button
-					type="button"
-					onClick={handleReset}
-					className="px-6 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors"
-				>
+				<Button type="button" variant="secondary" onClick={handleReset}>
 					Reset
-				</button>
+				</Button>
 			</div>
 
 			<p className="text-sm text-slate-500 text-center mt-4">
@@ -183,10 +179,10 @@ function ContactForm() {
 						/>
 					</div>
 
-					<button
+					<Button
 						type="submit"
 						disabled={isLoading}
-						className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors font-medium"
+						className="w-full hover:cursor-pointer  disabled:cursor-not-allowed transition-colors font-medium"
 					>
 						{isLoading ? (
 							<span className="flex items-center justify-center gap-2">
@@ -196,7 +192,7 @@ function ContactForm() {
 						) : (
 							"Send Message"
 						)}
-					</button>
+					</Button>
 				</form>
 			)}
 
@@ -218,9 +214,9 @@ function ClientExamplePage() {
 		<div className="max-w-4xl mx-auto px-4 py-8">
 			<h1 className="text-3xl font-bold mb-2">Client-Side Examples</h1>
 			<p className="text-slate-600 mb-8">
-				Examples of client-side interactivity with hydration. These
-				components are statically rendered on the server and become
-				interactive after hydration on the client.
+				Examples of client-side interactivity with hydration. These components
+				are statically rendered on the server and become interactive after
+				hydration on the client.
 			</p>
 
 			<div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
