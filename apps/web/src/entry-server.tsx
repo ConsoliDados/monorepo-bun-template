@@ -7,6 +7,7 @@ import {
 	renderRouterToString,
 } from "@tanstack/react-router/ssr/server";
 import { Hono } from "hono";
+import { publicEnv } from "../lib/env.public";
 import { handleServerAction } from "../server/actions-handler";
 import { loadApiRoutes } from "../server/api-loader";
 import { createRouter } from "./router";
@@ -102,6 +103,7 @@ app.use("*", async (c) => {
 		createRouter: () => {
 			return createRouter({
 				queryClient,
+				env: publicEnv,
 				head: "",
 				appCssHrefs,
 			});

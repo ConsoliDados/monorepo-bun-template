@@ -1,6 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 import { RouterClient } from "@tanstack/react-router/ssr/client";
 import { hydrateRoot } from "react-dom/client";
+import { publicEnv } from "../lib/env.public";
 import { createRouter } from "./router";
 
 import "./app.css";
@@ -31,6 +32,7 @@ const queryClient = new QueryClient({
 
 const router = createRouter({
 	queryClient,
+	env: publicEnv,
 	appCssHrefs: getInitialAppCssHrefs(),
 });
 

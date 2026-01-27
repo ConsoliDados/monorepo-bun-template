@@ -4,8 +4,8 @@ import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import tsConfigPaths from "vite-tsconfig-paths";
-import { serverActions } from "./plugins/server-actions";
 import { env } from "./lib/env";
+import { serverActions } from "./plugins/server-actions";
 
 const port = env.frontendPort;
 const host = "localhost";
@@ -62,6 +62,12 @@ export default defineConfig(({ mode }) => {
 				],
 			}),
 		],
+		// Inject environment variables at build time
+		define: {
+			__BACKEND_URL__: JSON.stringify(env.backendUrl),
+			__FRONTEND_URL__: JSON.stringify(env.frontendUrl),
+			__NODE_ENV__: JSON.stringify(env.nodeEnv),
+		},
 		build: mode === "client" ? clientBuild : ssrBuild,
 		server: {
 			host,

@@ -1,15 +1,18 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { createRouter as createTanstackRouter } from "@tanstack/react-router";
+import type { PublicEnv } from "../lib/env.public";
 import { routeTree } from "./routeTree.gen";
 
 export interface RouterContext {
 	queryClient: QueryClient;
+	env: PublicEnv;
 	head?: string;
 	appCssHrefs?: string[];
 }
 
 export interface CreateRouterOptions {
 	queryClient: QueryClient;
+	env: PublicEnv;
 	head?: string;
 	appCssHrefs?: string[];
 }
@@ -17,6 +20,7 @@ export interface CreateRouterOptions {
 export function createRouter(options: CreateRouterOptions) {
 	const context: RouterContext = {
 		queryClient: options.queryClient,
+		env: options.env,
 		head: options.head ?? "",
 		appCssHrefs: options.appCssHrefs ?? [],
 	};
