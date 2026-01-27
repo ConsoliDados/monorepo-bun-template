@@ -19,3 +19,26 @@ interface ImportMetaEnv {
 interface ImportMeta {
 	readonly env: ImportMetaEnv;
 }
+
+/**
+ * Type declarations for virtual modules (server actions)
+ */
+
+interface ActionMeta {
+	filePath: string;
+	functionName: string;
+}
+
+interface ActionManifest {
+	salt: string;
+	actions: Record<string, ActionMeta>;
+}
+
+declare module "virtual:server-actions-manifest" {
+	const manifest: ActionManifest;
+	export default manifest;
+}
+
+declare module "virtual:server-actions-runtime" {
+	export function callServerAction(actionHash: string, args: unknown[]): Promise<unknown>;
+}
