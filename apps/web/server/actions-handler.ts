@@ -1,10 +1,10 @@
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Context } from "hono";
+import manifest from "virtual:server-actions-manifest";
 
 interface ServerActionRequest {
-	actionPath: string;
-	functionName: string;
+	actionHash: string;
 	args: unknown[];
 }
 
@@ -45,24 +45,37 @@ export async function handleServerAction(c: Context) {
 	console.log("[ACTIONS-HANDLER] handleServerAction called");
 	try {
 		const body: ServerActionRequest = await c.req.json();
-		const { actionPath, functionName, args } = body;
-		console.log("[ACTIONS-HANDLER] Request:", { actionPath, functionName, args });
+		const { actionHash, args } = body;
+		console.log("[ACTIONS-HANDLER] Request:", { actionHash, args });
 
 		// Validate request
-		if (!actionPath || !functionName) {
-			console.log("[ACTIONS-HANDLER] Invalid request - missing actionPath or functionName");
+		if (!actionHash) {
+			console.log("[ACTIONS-HANDLER] Invalid request - missing actionHash");
 			return c.json({ error: "Invalid server action request" }, 400);
 		}
 
+		// Resolve hash to action metadata
+		const actionMeta = manifest.actions[actionHash];
+		if (!actionMeta) {
+			console.log("[ACTIONS-HANDLER] Invalid action hash:", actionHash);
+			return c.json({ error: "Invalid action hash" }, 404);
+		}
+
+		const { filePath, functionName } = actionMeta;
+		console.log(
+			"[ACTIONS-HANDLER] Resolved action:",
+			{ hash: actionHash, file: filePath, function: functionName },
+		);
+
 		// Load the module
-		console.log("[ACTIONS-HANDLER] Loading module:", actionPath);
-		const module = await loadServerAction(actionPath);
+		console.log("[ACTIONS-HANDLER] Loading module:", filePath);
+		const module = await loadServerAction(filePath);
 
 		// Check if function exists
 		if (typeof module[functionName] !== "function") {
 			console.log("[ACTIONS-HANDLER] Function not found:", functionName);
 			return c.json(
-				{ error: `Function ${functionName} not found in ${actionPath}` },
+				{ error: `Function ${functionName} not found in ${filePath}` },
 				404,
 			);
 		}
