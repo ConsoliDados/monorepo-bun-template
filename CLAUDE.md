@@ -40,6 +40,184 @@ git flow feature start <feature-name>
 git flow feature finish <feature-name>
 ```
 
+## Development Workflow
+
+### Branch Management
+
+**Critical Rules:**
+- **NEVER develop directly on the `dev` branch**
+- Always create a new feature branch for any development work
+- Use git-flow for structured branch management
+
+**Moving Changes from dev to New Branch:**
+If you accidentally made changes on `dev`:
+
+```bash
+# Analyze the changed files to determine appropriate branch name
+git status
+
+# Create and switch to new feature branch (keeps changes)
+git checkout -b feature/<descriptive-name>
+
+# Verify changes are in the new branch
+git status
+```
+
+### Commit Guidelines
+
+**Conventional Commits Format:**
+```
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer]
+```
+
+**Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`
+
+**Important:** Only commit when explicitly requested by the user. Never commit automatically after completing a task.
+
+**Examples:**
+```bash
+git commit -m "feat(server): add user authentication endpoint"
+git commit -m "fix(web): resolve hydration mismatch in TodoList"
+git commit -m "docs: update CLAUDE.md with workflow guidelines"
+```
+
+**When Asked to Commit on dev Branch:**
+When the user requests a commit and you detect changes are on the `dev` branch, you MUST:
+
+1. Analyze the changed files to determine an appropriate branch name
+2. Inform the user: "Following the directive to never commit directly on `dev`, I will move these changes to a new feature branch."
+3. Suggest a descriptive branch name based on the changes (e.g., `feature/update-claude-docs`, `fix/server-action-hash`, `docs/expand-guidelines`)
+4. Ask: "Would you like to use this branch name, or would you prefer to suggest a different name?"
+5. Wait for confirmation before proceeding
+6. Move to the new branch and then commit
+
+**Example:**
+```
+Following the directive to never commit directly on `dev`, I will move these changes to a new feature branch.
+
+Based on the changes (updates to CLAUDE.md and .gitignore), I suggest: `docs/expand-development-guidelines`
+
+Would you like to use this branch name, or would you prefer to suggest a different name?
+```
+
+**DO NOT:**
+- Ask "would you like to move to a new branch?" (just do it)
+- Commit on dev even if user seems to want it
+- Skip the branch name confirmation step
+
+### RPA Methodology (Research, Plan, Act)
+
+This project follows the **RPA pattern** for all development tasks:
+
+1. **Research**: Investigate the codebase, understand context, gather requirements
+2. **Plan**: Create a structured plan, break down complex tasks
+3. **Act**: Execute the plan step by step
+
+**Important:** After each instruction execution, return to plan mode to confirm next steps with the user.
+
+**Benefits:**
+- Ensures alignment with user expectations
+- Prevents scope creep
+- Allows for course correction
+- Maintains clear communication
+
+## Code Quality Standards
+
+### Design Principles
+
+This project adheres to industry-standard software engineering principles:
+
+**SOLID Principles:**
+- Single Responsibility Principle
+- Open/Closed Principle
+- Liskov Substitution Principle
+- Interface Segregation Principle
+- Dependency Inversion Principle
+
+**Other Key Principles:**
+- **KISS** (Keep It Simple, Stupid) - Favor simplicity over complexity
+- **DRY** (Don't Repeat Yourself) - Avoid code duplication
+- **YAGNI** (You Aren't Gonna Need It) - Don't add functionality until necessary
+- **Separation of Concerns** - Isolate different aspects of functionality
+
+### Design Patterns
+
+Apply appropriate design patterns when they solve real problems:
+
+**Common Patterns in This Project:**
+- **Factory Pattern** - Server actions creation, route loading
+- **Observer Pattern** - TanStack Query reactive state
+- **Adapter Pattern** - Platform-specific deployment adapters
+- **Singleton Pattern** - Environment configuration
+- **Module Pattern** - Workspace organization
+
+**Note:** Use patterns judiciously. Don't force patterns where they don't fit.
+
+### Task Decomposition
+
+**When to Break Down Tasks:**
+- Tasks involving 3+ distinct contexts (e.g., server + client + database)
+- Features requiring multiple file changes across packages
+- Refactoring that affects shared dependencies
+- Any task that feels overwhelming in scope
+
+**How to Decompose:**
+1. Identify distinct contexts or domains
+2. Create a plan document in `tmp/` directory
+3. Break into logical, testable steps
+4. Focus on one context at a time
+5. Complete and verify before moving to next context
+
+**Example Decomposition:**
+```
+Feature: Add user profile management
+→ Step 1: Database schema and types (packages/api)
+→ Step 2: Backend API endpoints (apps/server)
+→ Step 3: Server actions (apps/web server-side)
+→ Step 4: UI components (packages/ui)
+→ Step 5: Route and integration (apps/web client-side)
+```
+
+## Project Organization
+
+### tmp/ Directory
+
+**Purpose:** Store planning documents, context notes, and temporary development artifacts that should NOT be committed.
+
+**Location:** `/tmp/` in project root (gitignored)
+
+**Use Cases:**
+- Task breakdown plans for complex features
+- Context summaries for multi-step implementations
+- TODO lists and progress tracking
+- Research notes and API exploration
+- Draft documentation before finalization
+
+**Structure Example:**
+```
+tmp/
+├── feature-auth-system/
+│   ├── plan.md           # Overall implementation plan
+│   ├── context.md        # Technical context and decisions
+│   ├── api-research.md   # Third-party API investigation
+│   └── todos.md          # Task checklist
+├── refactor-server-actions/
+│   ├── current-state.md
+│   └── migration-plan.md
+└── notes/
+    └── meeting-2025-01-27.md
+```
+
+**Benefits:**
+- Focus on one context at a time
+- Maintain continuity across sessions
+- Document decisions without cluttering git history
+- Easy cleanup when tasks complete
+
 ## Architecture Overview
 
 ### Monorepo Structure
@@ -437,3 +615,139 @@ bun run build:docker      # Docker container
 ```
 
 Each uses the same SSR architecture with platform-specific server files.
+
+## Documentation Strategy
+
+### Documentation Structure
+
+This project maintains a **hierarchical documentation system** to separate concerns:
+
+```
+/
+├── docs/                    # Monorepo/template documentation
+│   ├── architecture/        # System design, technical decisions
+│   ├── development/         # Setup, workflows, contribution guides
+│   ├── infrastructure/      # Deployment, CI/CD, DevOps
+│   └── frameworks/          # Framework-specific guides (Vite, Elysia, etc.)
+│
+├── apps/
+│   ├── server/
+│   │   └── docs/           # Backend API-specific docs
+│   │       ├── api/        # API endpoint documentation
+│   │       └── guides/     # Server development guides
+│   └── web/
+│       └── docs/           # Frontend app-specific docs
+│           ├── components/ # Component usage docs
+│           ├── routing/    # TanStack Router guides
+│           └── guides/     # Web development guides
+│
+└── packages/
+    ├── api/
+    │   └── docs/           # Shared types and schemas docs
+    ├── ui/
+    │   └── docs/           # UI component library docs
+    └── config/
+        └── docs/           # Configuration guides
+```
+
+### Documentation Principles
+
+**Separation of Concerns:**
+- **Root `/docs/`**: Infrastructure, monorepo setup, framework configuration, deployment
+  - Example: "How to add a new workspace", "Bun workspace configuration", "Vite plugin system"
+- **App/Package `docs/`**: Application-specific features, business logic, usage guides
+  - Example: "User authentication flow", "Todo component API", "Form validation patterns"
+
+**When This Matters:**
+- Template users can understand the monorepo infrastructure without application-specific noise
+- Application developers focus on business logic without infrastructure complexity
+- Documentation can be extracted or replaced independently
+
+### Documentation Workflow
+
+**During Development:**
+1. Create draft documentation in `tmp/` directory as you work
+2. Document architectural decisions and technical rationale
+3. Note any gotchas or non-obvious patterns
+
+**Before Committing:**
+When asked to commit changes, Claude should:
+1. Review changes made during the session
+2. Suggest documentation updates if applicable:
+   - New features → Usage guides
+   - Architectural changes → Architecture docs
+   - New patterns → Development guides
+   - API changes → API documentation
+3. Ask: "Would you like me to create/update documentation for these changes?"
+
+**Documentation Triggers:**
+- New framework integration or plugin
+- Custom architectural patterns (like hash-based server actions)
+- Environment configuration changes
+- New deployment targets or infrastructure
+- Shared component additions to packages
+- Complex business logic or algorithms
+
+### Documentation Formats
+
+**Markdown Standards:**
+- Use GitHub-flavored markdown
+- Include code examples with syntax highlighting
+- Add file path references: `src/file.ts:42`
+- Use diagrams (mermaid) for complex flows
+- Keep TOC for documents >200 lines
+
+**Code Documentation:**
+- TSDoc comments for public APIs
+- Inline comments for complex logic only
+- README.md in each package/app explaining purpose
+- CHANGELOG.md for packages with external consumers
+
+### Documentation Best Practices
+
+**For Template/Infrastructure Docs (`/docs/`):**
+- Focus on "how to maintain and extend the monorepo"
+- Explain framework choices and alternatives considered
+- Document custom tooling and plugin systems
+- Provide migration guides for future updates
+
+**For Application Docs (`apps/*/docs/`, `packages/*/docs/`):**
+- Focus on "how to use and build features"
+- Document component APIs and usage patterns
+- Explain business logic and domain models
+- Provide integration guides
+
+**Avoid:**
+- Documenting obvious code (self-documenting code is preferred)
+- Duplicating framework documentation (link to official docs)
+- Over-documenting implementation details that change frequently
+- Creating documentation "just because"
+
+### Living Documentation
+
+Documentation should evolve with the codebase:
+- Review and update docs during refactoring
+- Remove outdated documentation immediately
+- Use `tmp/` for temporary notes that don't need permanence
+- Archive old approaches rather than deleting (helps future decisions)
+
+### Example: Adding a New Feature
+
+```markdown
+Task: Add user authentication system
+
+Claude suggests before commit:
+"I've implemented the authentication system. Would you like me to document:
+1. Architecture decision (why JWT + HTTP-only cookies) → /docs/architecture/
+2. API endpoints (/auth/login, /auth/logout) → apps/server/docs/api/
+3. Client usage (useAuth hook) → apps/web/docs/guides/
+4. Environment variables (JWT_SECRET) → Root README.md
+
+Shall I create these docs or would you prefer to do it manually?"
+```
+
+This approach ensures documentation is:
+- Timely (created when context is fresh)
+- Relevant (user decides what to document)
+- Organized (correct location from the start)
+- Maintainable (users develop documentation habits)
