@@ -1,13 +1,13 @@
 # Environment Variables Usage Guide
 
-This project uses a multi-layered approach to handle environment variables safely and efficiently across server and client contexts.
+This project uses a multi-layered approach with **Zod validation** to handle environment variables safely and efficiently across server and client contexts.
 
 ## Overview
 
-We have two environment configuration files:
+We have two environment configuration files, both validated with Zod:
 
 1. **`lib/env.ts`** - Server-only environment variables (validated with Zod)
-2. **`lib/env.public.ts`** - Public environment variables (safe for browser)
+2. **`lib/env.public.ts`** - Public environment variables (validated with Zod, safe for browser)
 
 ## Server-Only Variables (`lib/env.ts`)
 
@@ -30,7 +30,14 @@ const backendUrl = env.backendUrl;
 
 ## Public Variables (`lib/env.public.ts`)
 
+**Validated with Zod schema** - Type-safe and runtime validated!
+
 Use these **in any code** (client components, loaders, server actions):
+
+### Available public variables:
+- `publicEnv.frontendUrl` - Frontend URL (validated as URL)
+- `publicEnv.backendUrl` - Backend URL (validated as URL)
+- `publicEnv.nodeEnv` - Node environment (enum: development/production/test)
 
 ### Method 1: Direct Import (Server & Client)
 
@@ -38,6 +45,7 @@ Use these **in any code** (client components, loaders, server actions):
 import { publicEnv } from "../lib/env.public";
 
 export async function fetchData() {
+  // Type-safe and validated at runtime
   const response = await fetch(`${publicEnv.backendUrl}/api/data`);
   return response.json();
 }
@@ -48,10 +56,10 @@ export async function fetchData() {
 Access via TanStack Router context in components:
 
 ```typescript
-import { useRouterContext } from "@tanstack/react-router";
+import { rootRouteId, useRouteContext } from "@tanstack/react-router";
 
 function MyComponent() {
-  const { env } = useRouterContext();
+  const { env } = useRouteContext({ from: rootRouteId });
 
   return <div>Backend: {env.backendUrl}</div>;
 }
@@ -127,8 +135,9 @@ export async function myServerAction() {
 }
 
 // ✅ Use router context in components
+import { rootRouteId, useRouteContext } from "@tanstack/react-router";
 function Component() {
-  const { env } = useRouterContext();
+  const { env } = useRouteContext({ from: rootRouteId });
   return <div>{env.backendUrl}</div>;
 }
 
@@ -173,36 +182,32 @@ VITE_DATABASE_PASSWORD=secret123 // Exposed to browser!
 
 ### For Public (Client-Accessible):
 
+**With Automatic Conversion** (Recommended):
+
 1. Add to `.env` with `VITE_` prefix:
    ```bash
    VITE_API_KEY=public-key-123
    ```
 
-2. Add to `lib/env.public.ts`:
+2. **That's it!** The variable is automatically:
+   - Filtered (only `VITE_*` variables)
+   - Converted to camelCase: `apiKey`
+   - Available as `publicEnv.apiKey`
+   - Allowed via `.passthrough()` in schema
+
+**Optional: Add Custom Validation**
+
+If you want stricter validation (URL, enum, etc.):
+
+1. Add validation to `lib/env.public.ts` schema:
    ```typescript
-   export function getPublicEnv(): PublicEnv {
-     return {
-       apiKey: import.meta.env.VITE_API_KEY || "__API_KEY__",
-       // ...
-     };
-   }
+   const publicEnvSchema = z.object({
+     // ... existing fields
+     apiKey: z.string().min(10), // Add validation
+   }).passthrough();
    ```
 
-3. Update `vite.config.ts`:
-   ```typescript
-   define: {
-     __API_KEY__: JSON.stringify(env.apiKey),
-   }
-   ```
-
-4. Update TypeScript types in `src/vite-env.d.ts`:
-   ```typescript
-   declare const __API_KEY__: string;
-
-   interface ImportMetaEnv {
-     readonly VITE_API_KEY?: string;
-   }
-   ```
+**See [`ADDING_ENV_VARS.md`](./ADDING_ENV_VARS.md) for complete guide on adding variables.**
 
 ## Debugging
 
