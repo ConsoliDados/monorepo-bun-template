@@ -117,13 +117,41 @@ This project follows the **RPA pattern** for all development tasks:
 2. **Plan**: Create a structured plan, break down complex tasks
 3. **Act**: Execute the plan step by step
 
-**Important:** After each instruction execution, return to plan mode to confirm next steps with the user.
+**Critical: ALWAYS Return to Plan Mode**
+
+After completing ANY task (code changes, commits, file operations, research, etc.), you MUST:
+1. Summarize what was completed
+2. Return to plan mode immediately
+3. Wait for user confirmation before proceeding with next steps
+
+This applies to ALL tasks without exception:
+- After making code edits
+- After running commits
+- After file operations
+- After research/exploration
+- After ANY instruction execution
+
+**DO NOT:**
+- Continue with additional work without returning to plan mode
+- Assume the user wants you to proceed
+- Wait for the user to manually enable plan mode
+
+**Example:**
+After completing a commit:
+```
+✅ Commit completed successfully on branch `docs/expand-development-guidelines`.
+
+[Entering plan mode]
+
+What would you like to do next?
+```
 
 **Benefits:**
 - Ensures alignment with user expectations
 - Prevents scope creep
 - Allows for course correction
 - Maintains clear communication
+- User maintains full control of workflow
 
 ## Code Quality Standards
 
@@ -181,6 +209,53 @@ Feature: Add user profile management
 → Step 4: UI components (packages/ui)
 → Step 5: Route and integration (apps/web client-side)
 ```
+
+### Language Standards
+
+**Primary Language: English**
+
+All code, documentation, and technical communication must be in English, including:
+- Variable names, function names, class names
+- Code comments and JSDoc documentation
+- Markdown documentation files
+- Commit messages
+- API endpoint names
+- Database schema and field names
+- Error messages and user-facing strings (when applicable)
+
+**Exceptions (Keep in Portuguese):**
+Brazilian-specific terms that have no English equivalent:
+- CPF, CNPJ (tax identification numbers)
+- Boleto (payment slip)
+- PIX (instant payment system)
+- Other domain-specific Brazilian terms
+
+**Examples:**
+
+✅ **Good:**
+```typescript
+// Get user CPF for validation
+function getUserCpf(userId: string): string { ... }
+
+// Process boleto payment
+async function processBoletoPayment(boleto: BoletoData) { ... }
+```
+
+❌ **Bad:**
+```typescript
+// Pega o CPF do usuário
+function pegarCpfUsuario(idUsuario: string): string { ... }
+
+// Processa pagamento de boleto
+async function processarPagamentoBoleto(boleto: DadosBoleto) { ... }
+```
+
+**Rationale:**
+- Facilitates international collaboration
+- Industry-standard practice
+- Better tooling and IDE support
+- Easier integration with external libraries
+- Clearer separation of domain terms from technical implementation
 
 ## Project Organization
 
