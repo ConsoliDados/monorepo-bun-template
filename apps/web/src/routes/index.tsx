@@ -1,11 +1,11 @@
-import { Button } from "@monorepo/ui";
+import { Button } from "@monorepo/ui/components/button";
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@monorepo/ui/card";
+} from "@monorepo/ui/components/card";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { fetchUsers } from "./-actions/users-actions.server";
 import { EnvDebug } from "../components/EnvDebug";

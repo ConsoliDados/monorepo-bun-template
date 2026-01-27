@@ -1,4 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@monorepo/ui/card";
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from "@monorepo/ui/components/card";
 import { rootRouteId, useRouteContext } from "@tanstack/react-router";
 
 /**
