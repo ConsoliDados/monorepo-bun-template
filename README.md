@@ -271,7 +271,7 @@ bun --version
 
 - [ ] Add more shadcn/ui components
 - [ ] Create Zod validation schemas in `packages/api`
-- [ ] Add database (Drizzle ORM + Turso/PostgreSQL)
+- [ ] Add database (Drizzle ORM + PostgreSQL)
 - [ ] Implement authentication
 - [ ] Add tests (Bun test)
 
