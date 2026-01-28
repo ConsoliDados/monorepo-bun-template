@@ -1,24 +1,25 @@
 {
-  "name": "monorepo-bun",
-  "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "scripts": {
-    "dev": "concurrently -n \"server,web\" -c \"blue,green\" \"bun run --filter server dev\" \"bun run --env-file=.env --filter web dev\"",
-    "dev:server": "bun run --filter server dev",
-    "dev:web": "bun run --env-file=.env --filter web dev",
-    "lint": "bun run --filter '*' lint",
-    "format": "bun run --filter '*' format",
-    "typecheck": "bun run --filter '*' typecheck"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "concurrently": "^9.1.2",
-    "typescript": "^5.7.3"
-  },
-  "dependencies": {
-    "@elysiajs/cors": "^1.4.1"
-  }
+	"name": "monorepo-bun",
+	"private": true,
+	"workspaces": [
+		"apps/*",
+		"packages/*"
+	],
+	"scripts": {
+		"dev": "concurrently -n \"server,web\" -c \"blue,green\" \"bun --elide-lines=5120 run --filter server dev\" \"bun --elide-lines=5120 run --env-file=.env --filter web dev\"",
+		"dev:raw": "concurrently --raw \"bun --elide-lines=0 run --filter server dev\" \"bun --elide-lines=0 run --env-file=.env --filter web dev\"",
+		"dev:server": "bun --elide-lines=5120 run --filter server dev",
+		"dev:web": "bun --elide-lines=5120 run --env-file=.env --filter web dev",
+		"lint": "bun run --filter '*' lint",
+		"format": "bun run --filter '*' format",
+		"typecheck": "bun run --filter '*' typecheck"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"concurrently": "^9.1.2",
+		"typescript": "^5.7.3"
+	},
+	"dependencies": {
+		"@elysiajs/cors": "^1.4.1"
+	}
 }

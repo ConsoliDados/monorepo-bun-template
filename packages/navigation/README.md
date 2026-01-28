@@ -85,6 +85,7 @@ The following are **NOT** intercepted and behave normally:
 9. **Modified clicks** - Cmd+Click, Ctrl+Click, Middle-click, Shift+Click
 10. **Opt-out attribute** - `<a href="/page" data-no-intercept>`
 11. **POST forms** - `<form method="post">` (submit normally)
+12. **React 19 forms** - Forms using `useActionState` hook (detected automatically)
 
 ## API Reference
 
@@ -244,6 +245,63 @@ Using `{ capture: true }` ensures the interceptor runs **before** any other clic
 - Other application event listeners
 
 This guarantees that we can override client-side routing frameworks.
+
+### React 19 Compatibility
+
+The interceptor automatically detects and skips React 19 forms that use the `useActionState` hook:
+
+**Detection Logic:**
+
+React 19 forms with `useActionState` have special characteristics:
+- Action attribute is empty, `javascript:`, or a special React internal function
+- These forms handle submission via React's internal mechanisms
+- Intercepting them would break React 19's form handling
+
+**Implementation:**
+
+```typescript
+function isReact19Form(form: HTMLFormElement): boolean {
+  const actionAttr = form.getAttribute('action');
+
+  // React 19 forms with useActionState have no action or javascript: action
+  if (!actionAttr || actionAttr.startsWith('javascript:')) {
+    return true;
+  }
+
+  if (actionAttr.trim() === '') {
+    return true;
+  }
+
+  return false;
+}
+```
+
+**What This Means:**
+
+When you use React 19's `useActionState` hook in your forms, the interceptor will automatically detect it and skip interception, allowing React 19 to handle the form submission natively:
+
+```tsx
+// ✅ This form is automatically detected and NOT intercepted
+import { useActionState } from 'react';
+import { updateProfile } from './actions.server';
+
+function ProfileForm() {
+  const [state, formAction, isPending] = useActionState(updateProfile, null);
+
+  return (
+    <form action={formAction}> {/* ← Automatically skipped by interceptor */}
+      <input name="name" />
+      <button type="submit">Update</button>
+    </form>
+  );
+}
+```
+
+**Benefits:**
+- ✅ Seamless React 19 integration
+- ✅ No manual `data-no-intercept` needed for React 19 forms
+- ✅ Preserves React 19's automatic pending states
+- ✅ Works with server actions and `useActionState`
 
 ## Testing
 

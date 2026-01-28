@@ -80,6 +80,27 @@ function shouldSkipElement(element: HTMLElement): boolean {
 }
 
 /**
+ * Checks if a form is using React 19 actions
+ * React 19 forms have action attribute that starts with "javascript:" or is empty
+ * when using useActionState or form actions
+ */
+function isReact19Form(form: HTMLFormElement): boolean {
+	const actionAttr = form.getAttribute("action");
+
+	// React 19 forms with useActionState have no action or javascript: action
+	if (!actionAttr || actionAttr.startsWith("javascript:")) {
+		return true;
+	}
+
+	// Additional check: if action is empty string after trim
+	if (actionAttr.trim() === "") {
+		return true;
+	}
+
+	return false;
+}
+
+/**
  * Checks if click event should open in new tab
  * (Cmd/Ctrl+Click, Middle click, Shift+Click)
  */
@@ -158,6 +179,7 @@ export function setupAnchorInterceptor(options: InterceptorOptions = {}): void {
 	/**
 	 * Intercept <form> submissions with method="GET"
 	 * Forms with GET redirect to URL with query params
+	 * React 19 forms with actions are automatically skipped
 	 */
 	document.addEventListener(
 		"submit",
@@ -165,6 +187,14 @@ export function setupAnchorInterceptor(options: InterceptorOptions = {}): void {
 			const form = event.target as HTMLFormElement;
 
 			if (!form || form.tagName !== "FORM") return;
+
+			// Skip React 19 forms (useActionState, form actions)
+			if (isReact19Form(form)) {
+				if (debug) {
+					console.log("[Navigation] Skipping React 19 form (detected action prop)");
+				}
+				return;
+			}
 
 			// Only intercept GET forms (POST should submit normally)
 			const method = (form.method || "get").toLowerCase();

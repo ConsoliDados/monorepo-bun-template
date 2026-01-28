@@ -110,12 +110,57 @@ export function serverActions(): Plugin {
 			if (id === resolvedRuntimeId) {
 				// Client-side runtime to call server actions using hash
 				return `
+// Helper to convert File to base64
+async function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// Process args to serialize FormData and Files
+async function serializeArgs(args) {
+  return Promise.all(args.map(async (arg) => {
+    if (arg instanceof FormData) {
+      const entries = [];
+      for (const [key, value] of arg.entries()) {
+        if (value instanceof File) {
+          // Convert File to base64
+          const base64 = await fileToBase64(value);
+          entries.push([key, {
+            __type: 'File',
+            name: value.name,
+            type: value.type,
+            size: value.size,
+            lastModified: value.lastModified,
+            data: base64
+          }]);
+        } else {
+          entries.push([key, value]);
+        }
+      }
+      return {
+        __type: 'FormData',
+        entries
+      };
+    }
+    return arg;
+  }));
+}
+
 export async function callServerAction(actionHash, args) {
   console.log('[CLIENT] callServerAction:', { actionHash, args });
+
+  // Serialize FormData and Files
+  const processedArgs = await serializeArgs(args);
+  console.log('[CLIENT] Processed args:', processedArgs);
+
   const response = await fetch('/__server-actions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ actionHash, args })
+    body: JSON.stringify({ actionHash, args: processedArgs })
   });
 
   console.log('[CLIENT] Response status:', response.status);
