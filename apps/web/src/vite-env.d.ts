@@ -40,5 +40,8 @@ declare module "virtual:server-actions-manifest" {
 }
 
 declare module "virtual:server-actions-runtime" {
-	export function callServerAction(actionHash: string, args: unknown[]): Promise<unknown>;
+	export function callServerAction(
+		actionHash: string,
+		args: unknown[],
+	): Promise<unknown>;
 }

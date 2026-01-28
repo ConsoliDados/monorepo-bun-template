@@ -304,6 +304,7 @@ tmp/
 **Packages:**
 - `packages/api` - Shared Zod schemas and TypeScript types
 - `packages/config` - Shared Biome and TypeScript configurations
+- `packages/navigation` - Navigation interceptor for server-side routing
 - `packages/ui` - Shared React components with Tailwind v4
 
 **Communication Flow:**
@@ -508,6 +509,73 @@ This project uses Tailwind v4 with CSS-first configuration (no `tailwind.config.
 - Components in `packages/ui/src/components/`
 - Can use CLI: `cd apps/web && bun dlx shadcn@latest add [component]`
 - Components.json configured for monorepo structure
+
+### Navigation: Server-Side Interceptor
+
+This project uses `@monorepo/navigation` to intercept all internal navigation and force server-side page reloads.
+
+**Why:** Ensures all requests pass through server middleware (authentication, authorization, etc.) and HTTP-only cookies are properly validated.
+
+**Location:** `packages/navigation`
+
+**Setup:** Interceptor is initialized in `apps/web/src/entry-client.tsx`
+
+```typescript
+import { setupAnchorInterceptor } from '@monorepo/navigation';
+
+hydrateRoot(document, <App />);
+
+setupAnchorInterceptor({ debug: import.meta.env.DEV });
+```
+
+**How It Works:**
+- Uses event delegation (capture phase) to intercept clicks on `<a>`, `<area>`, and form submissions
+- Prevents default behavior and forces `window.location.href` (full page reload)
+- Runs **before** TanStack Router's client-side navigation
+- Only intercepts internal links (external, mailto, tel, etc. are ignored)
+
+**What Gets Intercepted:**
+- ✅ `<a href="/internal">` - Anchor tags
+- ✅ `<form method="get">` - GET forms
+- ✅ `<area href="/internal">` - Image maps
+- ✅ Even when wrapped in TanStack Router `<Link>` (without `reloadDocument`)
+
+**What's NOT Intercepted:**
+- ❌ External URLs (`https://...`)
+- ❌ Special protocols (`mailto:`, `tel:`, `sms:`)
+- ❌ Hash links (`#section`)
+- ❌ Downloads (`<a download>`)
+- ❌ New tabs (`target="_blank"`)
+- ❌ Modified clicks (Cmd+Click, Ctrl+Click)
+- ❌ Opt-out (`data-no-intercept` attribute)
+
+**Usage Patterns:**
+
+```typescript
+// ✅ Recommended: Use normal HTML (interceptor handles it)
+<a href="/dashboard">Dashboard</a>
+
+// ✅ Also works: Custom Link wrapper (explicit reloadDocument)
+import { Link } from '../components/Link';
+<Link to="/dashboard">Dashboard</Link>
+
+// ⚠️ Intercepted: TanStack Link without reloadDocument
+import { Link } from '@tanstack/react-router';
+<Link to="/dashboard">Dashboard</Link> // ← Still forces server-side!
+
+// ❌ Opt-out: Explicit client-side navigation
+<a href="/dashboard" data-no-intercept>Client-side</a>
+```
+
+**Best Practices:**
+1. **Use `<a href>` for internal navigation** - The interceptor makes it server-side automatically
+2. **Never use `<a>` for external links without protocol** - Always use `https://` or `target="_blank"`
+3. **Test navigation behavior** - Visit `/navigation-test` to see all cases
+4. **Keep `packages/ui` framework-agnostic** - UI components use `<a>` tags, not routing frameworks
+
+**Testing:** Visit `/navigation-test` for comprehensive test page showing all navigation scenarios.
+
+**Documentation:** See `packages/navigation/README.md` for complete API reference.
 
 ## Important Patterns
 

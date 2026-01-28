@@ -3,12 +3,12 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
 	createRootRouteWithContext,
 	HeadContent,
-	Link,
 	Outlet,
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Suspense } from "react";
+import { Link } from "../components/Link";
 import type { RouterContext } from "../router";
 import "../app.css";
 
@@ -126,6 +126,22 @@ function RootComponent() {
 											}}
 										>
 											Server Functions/Actions
+										</Link>
+										<Link
+											to="/navigation-test"
+											className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+											activeProps={{
+												className:
+													"px-4 py-2 text-sm font-medium text-purple-700 bg-purple-50 rounded-lg",
+											}}
+										>
+											Navigation Test
+										</Link>
+										<Link
+											to="/dashboard"
+											className="px-4 py-2 text-sm font-medium text-green-700 hover:text-green-900 hover:bg-green-50 rounded-lg transition-colors"
+										>
+											🔒 Dashboard
 										</Link>
 									</div>
 								</div>

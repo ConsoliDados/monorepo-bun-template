@@ -10,6 +10,8 @@ import { Hono } from "hono";
 import { publicEnv } from "../lib/env.public";
 import { handleServerAction } from "../server/actions-handler";
 import { loadApiRoutes } from "../server/api-loader";
+import { createMatcher, normalizePath } from "../server/middleware/matcher";
+import { loadUserMiddleware } from "../server/middleware/loader";
 import { createRouter } from "./router";
 
 interface ViteManifestChunk {
@@ -72,6 +74,42 @@ function getAppCssHrefs(): string[] {
 
 // Create Hono app
 const app = new Hono();
+
+// Middleware loading state
+let middlewareLoaded = false;
+let userMiddleware: Awaited<ReturnType<typeof loadUserMiddleware>> | null =
+	null;
+
+// Load user middleware lazily on first request
+app.use("*", async (c, next) => {
+	// Load middleware only once
+	if (!middlewareLoaded) {
+		console.log("[MIDDLEWARE] Loading user middleware...");
+		userMiddleware = await loadUserMiddleware();
+		middlewareLoaded = true;
+		if (userMiddleware) {
+			console.log("[MIDDLEWARE] ✓ User middleware loaded and registered");
+		} else {
+			console.log("[MIDDLEWARE] No user middleware found - skipping");
+		}
+	}
+
+	// If middleware exists, check if path matches
+	if (userMiddleware) {
+		const { middleware, config } = userMiddleware;
+		const matcher = createMatcher(config?.matcher);
+		const path = normalizePath(c.req.path);
+
+		// Check if the current path matches the middleware config
+		if (matcher(path)) {
+			// Execute user middleware
+			return await middleware(c, next);
+		}
+	}
+
+	// Path doesn't match or no middleware, continue
+	await next();
+});
 
 // Automatically load all API routes from server/api directory
 await loadApiRoutes(app);

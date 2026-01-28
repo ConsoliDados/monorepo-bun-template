@@ -34,8 +34,8 @@ function SSRExamplePage() {
 		<div className="max-w-4xl mx-auto px-4 py-8">
 			<h1 className="text-3xl font-bold mb-2">SSR Example</h1>
 			<p className="text-slate-600 mb-8">
-				This page was server-side rendered (SSR). The data below was
-				loaded during SSR.
+				This page was server-side rendered (SSR). The data below was loaded
+				during SSR.
 			</p>
 
 			<div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -85,9 +85,7 @@ function SSRExamplePage() {
 			</div>
 
 			<div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-				<h3 className="font-semibold text-blue-900 mb-2">
-					How to verify SSR:
-				</h3>
+				<h3 className="font-semibold text-blue-900 mb-2">How to verify SSR:</h3>
 				<ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
 					<li>View page source (Ctrl+U) - content is already there</li>
 					<li>

@@ -1,3 +1,4 @@
+import { setupAnchorInterceptor } from "@monorepo/navigation";
 import { QueryClient } from "@tanstack/react-query";
 import { RouterClient } from "@tanstack/react-router/ssr/client";
 import { hydrateRoot } from "react-dom/client";
@@ -37,3 +38,11 @@ const router = createRouter({
 });
 
 hydrateRoot(document, <RouterClient router={router} />);
+
+// Setup anchor interceptor for server-side navigation
+// This ensures all <a> tag clicks trigger full page reloads,
+// passing through server middleware (authentication, etc.)
+setupAnchorInterceptor({
+	// debug: import.meta.env.DEV, // Enable debug logging in development
+	debug: true,
+});
