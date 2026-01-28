@@ -81,9 +81,31 @@ export async function handleServerAction(c: Context) {
 			);
 		}
 
+		// Process args to reconstruct FormData and Files
+		const processedArgs = args.map((arg: any) => {
+			if (arg?.__type === "FormData") {
+				const formData = new FormData();
+				for (const [key, value] of arg.entries) {
+					if (value?.__type === "File") {
+						// Reconstruct File from base64
+						const buffer = Buffer.from(value.data, "base64");
+						const file = new File([buffer], value.name, {
+							type: value.type,
+							lastModified: value.lastModified,
+						});
+						formData.append(key, file);
+					} else {
+						formData.append(key, value);
+					}
+				}
+				return formData;
+			}
+			return arg;
+		});
+
 		// Execute the function
 		console.log("[ACTIONS-HANDLER] Executing function:", functionName);
-		const result = await module[functionName](...args);
+		const result = await module[functionName](...processedArgs);
 		console.log("[ACTIONS-HANDLER] Result:", result);
 
 		// Return result

@@ -56,6 +56,25 @@ function Home() {
 						Explore different features and patterns implemented in this template
 					</p>
 					<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+						<Link to="/react-19-demo" className="group">
+							<Card className="h-full hover:shadow-lg transition-all hover:scale-105 cursor-pointer bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+								<CardHeader>
+									<CardTitle className="group-hover:text-purple-600 transition-colors">
+										✨ React 19 Demo
+									</CardTitle>
+									<CardDescription className="text-purple-700">
+										New hooks and features
+									</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<p className="text-sm text-slate-600">
+										Interactive demos of useActionState, useOptimistic, use(),
+										and useFormStatus hooks.
+									</p>
+								</CardContent>
+							</Card>
+						</Link>
+
 						<Link to="/ssr-example" className="group">
 							<Card className="h-full hover:shadow-lg transition-all hover:scale-105 cursor-pointer">
 								<CardHeader>

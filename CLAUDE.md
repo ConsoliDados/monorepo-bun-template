@@ -383,6 +383,108 @@ hash = SHA256(filePath + functionName + salt).substring(0, 12)
 - Salt rotates per session/deploy
 - Foundation for per-request authentication
 
+#### FormData and File Upload Support
+
+Server actions automatically support FormData and File uploads through custom serialization:
+
+**How It Works:**
+
+1. **Client-Side Serialization** (`plugins/server-actions.ts`):
+   - FormData instances are detected and converted to JSON-compatible format
+   - Files are converted to base64 strings for JSON transport
+   - Preserves file metadata (name, type, size, lastModified)
+
+2. **Server-Side Deserialization** (`server/actions-handler.ts`):
+   - JSON payload is received and processed
+   - Base64 strings are converted back to File objects
+   - FormData is reconstructed with all entries
+
+**Usage Example:**
+
+```typescript
+// -actions/upload-actions.server.ts
+export async function uploadAvatar(
+  previousState: any,
+  formData: FormData
+): Promise<{ success: boolean; message: string }> {
+  const file = formData.get('avatar') as File;
+  const name = formData.get('name') as string;
+
+  // Validate file
+  if (!file.type.startsWith('image/')) {
+    return { success: false, message: 'Avatar must be an image' };
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    return { success: false, message: 'Avatar must be less than 5MB' };
+  }
+
+  // Process file (save to storage, etc.)
+  console.log('Uploading:', file.name, file.size, file.type);
+
+  return { success: true, message: 'Avatar uploaded successfully!' };
+}
+
+// In component with React 19's useActionState:
+import { useActionState } from 'react';
+import { uploadAvatar } from './-actions/upload-actions.server';
+
+function AvatarForm() {
+  const [state, formAction, isPending] = useActionState(uploadAvatar, null);
+
+  return (
+    <form action={formAction}>
+      <input name="name" type="text" required />
+      <input name="avatar" type="file" accept="image/*" required />
+      <button type="submit" disabled={isPending}>
+        {isPending ? 'Uploading...' : 'Upload Avatar'}
+      </button>
+      {state?.message && <p>{state.message}</p>}
+    </form>
+  );
+}
+```
+
+**Serialization Format:**
+
+```typescript
+// Client sends (JSON):
+{
+  actionHash: 'abc123',
+  args: [{
+    __type: 'FormData',
+    entries: [
+      ['name', 'John'],
+      ['avatar', {
+        __type: 'File',
+        name: 'avatar.jpg',
+        type: 'image/jpeg',
+        size: 102400,
+        lastModified: 1704067200000,
+        data: 'base64EncodedString...'
+      }]
+    ]
+  }]
+}
+
+// Server reconstructs:
+FormData {
+  'name' => 'John',
+  'avatar' => File { name: 'avatar.jpg', type: 'image/jpeg', ... }
+}
+```
+
+**Benefits:**
+- ✅ No need for multipart/form-data
+- ✅ Works with React 19's form actions
+- ✅ Automatic serialization (transparent to developers)
+- ✅ Supports single and multiple file uploads
+- ✅ Type-safe with TypeScript
+
+**Limitations:**
+- Large files increase JSON payload size (base64 overhead ~33%)
+- Consider direct upload to storage for very large files (>10MB)
+
 ### Dynamic API Loading
 
 **Location:** `apps/web/server/api-loader.ts`
