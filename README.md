@@ -10,6 +10,7 @@
 - 🔥 **Vite** for blazing fast HMR
 - 🛣️ **TanStack Router** with file-based routing
 - 🌐 **Server Functions** - Next.js-like server actions pattern
+- 🔒 **Middleware** - Route protection and request interception
 - 📊 **TanStack Query** for data fetching and caching
 - 🎯 **TypeScript** native execution (no build needed in dev)
 - 🎨 **Tailwind CSS** + **shadcn/ui** components
@@ -157,6 +158,40 @@ The Vite plugin automatically:
 - Detects `.server.ts` files
 - Transforms them to fetch calls on the client
 - Executes them on the server
+
+## 🔒 Middleware
+
+Protect routes and intercept requests with Next.js-style middleware.
+
+**Quick Example:**
+
+```typescript
+// apps/web/src/middleware.ts
+import { getCookie } from "hono/cookie";
+import type { MiddlewareConfig, MiddlewareHandler } from "../server/middleware/types";
+
+export const config: MiddlewareConfig = {
+  matcher: ["/dashboard", "/dashboard/:path*"],
+};
+
+export const middleware: MiddlewareHandler = async (c, next) => {
+  const authSession = getCookie(c, "auth-session");
+
+  if (!authSession) {
+    return c.redirect("/");
+  }
+
+  await next();
+};
+```
+
+**Features:**
+- File-based middleware (`src/middleware.ts`)
+- Flexible pattern matching (glob, regex, arrays)
+- Lazy loading for optimal performance
+- Full TypeScript support
+
+**Learn More:** See [apps/web/server/middleware/docs](apps/web/server/middleware/docs/README.md) for complete documentation.
 
 ## 🔧 Environment Variables
 

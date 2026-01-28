@@ -1,0 +1,20 @@
+{
+  "name": "@monorepo/navigation",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./anchor-interceptor": "./src/anchor-interceptor.ts"
+  },
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@monorepo/config": "workspace:*",
+    "bun-types": "^1.2.3",
+    "typescript": "^5.7.3"
+  }
+}

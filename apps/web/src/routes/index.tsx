@@ -6,7 +6,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@monorepo/ui/components/card";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "../components/Link";
 import { fetchUsers } from "./-actions/users-actions.server";
 import { EnvDebug } from "../components/EnvDebug";
 
@@ -54,7 +55,7 @@ function Home() {
 					<p className="text-center text-slate-600 mb-6">
 						Explore different features and patterns implemented in this template
 					</p>
-					<div className="grid gap-4 md:grid-cols-3">
+					<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
 						<Link to="/ssr-example" className="group">
 							<Card className="h-full hover:shadow-lg transition-all hover:scale-105 cursor-pointer">
 								<CardHeader>
@@ -107,6 +108,25 @@ function Home() {
 									<p className="text-sm text-slate-600">
 										Todo list with full CRUD, demonstrating mutations and cache
 										management.
+									</p>
+								</CardContent>
+							</Card>
+						</Link>
+
+						<Link to="/dashboard" className="group">
+							<Card className="h-full hover:shadow-lg transition-all hover:scale-105 cursor-pointer bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+								<CardHeader>
+									<CardTitle className="group-hover:text-green-600 transition-colors">
+										🔒 Dashboard
+									</CardTitle>
+									<CardDescription className="text-green-700">
+										Protected route with middleware
+									</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<p className="text-sm text-slate-600">
+										Demonstrates middleware authentication. Requires
+										auth-session cookie.
 									</p>
 								</CardContent>
 							</Card>

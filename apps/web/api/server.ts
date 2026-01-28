@@ -1,2 +1,2 @@
 // Vercel API route that handles SSR
-export { default } from '../server/vercel'
+export { default } from "../server/vercel";

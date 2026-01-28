@@ -32,6 +32,7 @@
       "dependencies": {
         "@hono/node-server": "^1.19.9",
         "@monorepo/api": "workspace:*",
+        "@monorepo/navigation": "workspace:*",
         "@monorepo/ui": "workspace:*",
         "@netlify/functions": "^5.1.2",
         "@tanstack/react-devtools": "^0.7.0",
@@ -76,6 +77,15 @@
     "packages/config": {
       "name": "@monorepo/config",
       "version": "0.0.0",
+    },
+    "packages/navigation": {
+      "name": "@monorepo/navigation",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@monorepo/config": "workspace:*",
+        "bun-types": "^1.2.3",
+        "typescript": "^5.7.3",
+      },
     },
     "packages/ui": {
       "name": "@monorepo/ui",
@@ -243,6 +253,8 @@
     "@monorepo/api": ["@monorepo/api@workspace:packages/api"],
 
     "@monorepo/config": ["@monorepo/config@workspace:packages/config"],
+
+    "@monorepo/navigation": ["@monorepo/navigation@workspace:packages/navigation"],
 
     "@monorepo/ui": ["@monorepo/ui@workspace:packages/ui"],
 

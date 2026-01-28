@@ -1,35 +1,17 @@
 {
-  "extends": "@monorepo/config/tsconfig-react",
-  "compilerOptions": {
-    "types": [
-      "bun-types",
-      "vite/client"
-    ],
-    "allowImportingTsExtensions": true,
-    "moduleResolution": "bundler",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@monorepo/api": [
-        "../../packages/api/src/index.ts"
-      ],
-      "@monorepo/api/*": [
-        "../../packages/api/src/*"
-      ],
-      "@monorepo/ui": [
-        "../../packages/ui/src/index.ts"
-      ],
-      "@monorepo/ui/*": [
-        "../../packages/ui/src/*"
-      ]
-    }
-  },
-  "include": [
-    "src/**/*",
-    "server/**/*"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+	"extends": "@monorepo/config/tsconfig-react",
+	"compilerOptions": {
+		"types": ["bun-types", "vite/client"],
+		"allowImportingTsExtensions": true,
+		"moduleResolution": "bundler",
+		"paths": {
+			"@/*": ["./src/*"],
+			"@monorepo/api": ["../../packages/api/src/index.ts"],
+			"@monorepo/api/*": ["../../packages/api/src/*"],
+			"@monorepo/ui": ["../../packages/ui/src/index.ts"],
+			"@monorepo/ui/*": ["../../packages/ui/src/*"]
+		}
+	},
+	"include": ["src/**/*", "server/**/*"],
+	"exclude": ["node_modules"]
 }
