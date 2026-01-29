@@ -93,3 +93,7 @@ DESENVOLVIMENTO.md
 
 # Bun
 bun.lockb
+
+# Lefthook (git hooks runtime)
+.lefthook/
+.lefthook-local/

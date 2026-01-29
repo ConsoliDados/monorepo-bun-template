@@ -12,11 +12,13 @@
 		"dev:web": "bun --elide-lines=5120 run --env-file=.env --filter web dev",
 		"lint": "bun run --filter '*' lint",
 		"format": "bun run --filter '*' format",
-		"typecheck": "bun run --filter '*' typecheck"
+		"typecheck": "bun run --filter '*' typecheck",
+		"prepare": "lefthook install"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
 		"concurrently": "^9.1.2",
+		"lefthook": "^2.0.16",
 		"typescript": "^5.7.3"
 	},
 	"dependencies": {
