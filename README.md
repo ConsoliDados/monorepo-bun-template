@@ -49,6 +49,45 @@ cd monorepo-bun
 bun install
 ```
 
+### Git Hooks Setup
+
+This project uses [Lefthook](https://github.com/evilmartians/lefthook) for managing git hooks.
+
+**Automatic Installation:**
+Lefthook is automatically installed when you run `bun install` via the `prepare` script.
+
+**Current Hooks:**
+- `pre-commit`: Blocks direct commits to `dev` branch (enforces feature branch workflow)
+
+**Manual Installation (if needed):**
+
+```bash
+# Install Lefthook
+bun add -D lefthook
+
+# Install hooks
+bunx lefthook install
+```
+
+**Platform Notes:**
+
+- ✅ **Linux**: Works out of the box
+- ✅ **macOS**: Works out of the box (if issues, see troubleshooting below)
+- ⚠️ **Windows**: Use WSL (Windows Subsystem for Linux). Native Windows support exists but WSL is recommended for best compatibility with this template.
+
+**Troubleshooting macOS:**
+
+If you encounter permission issues with the Lefthook binary:
+```bash
+xattr -d com.apple.quarantine $(which lefthook)
+lefthook install -f
+```
+
+**Bypass hook (emergency only):**
+```bash
+git commit --no-verify -m "hotfix: critical bug"
+```
+
 ### Development
 
 #### Option 1: Run everything together (recommended)
@@ -360,6 +399,258 @@ bun --version
 ## 📄 License
 
 MIT
+
+## 🏭 Extending for Production Projects
+
+This template provides a solid foundation for monorepo development. When using this template in production projects, consider implementing these additional safeguards and workflows:
+
+### Test Coverage Enforcement
+
+Add test coverage requirements by updating `lefthook.yml`:
+
+```yaml
+# lefthook.yml
+pre-commit:
+  commands:
+    block-dev-branch:
+      # ... existing config ...
+
+    test-coverage:
+      run: |
+        echo "🧪 Running tests with coverage..."
+        bun test --coverage
+
+        COVERAGE=$(bun test --coverage --silent | grep "All files" | awk '{print $10}' | sed 's/%//')
+
+        if [ "$COVERAGE" -lt 80 ]; then
+          echo "❌ Test coverage below 80% (current: ${COVERAGE}%)"
+          echo "Please add tests before committing."
+          exit 1
+        fi
+
+        echo "✅ Test coverage: ${COVERAGE}%"
+```
+
+**Recommended Configuration:**
+- Use **Vitest** with coverage plugin (Bun's test runner also supports coverage)
+- Adjust threshold based on project needs (70%, 80%, 90%)
+- Consider different thresholds for different packages
+- Allow bypass with `--no-verify` for urgent hotfixes (use sparingly)
+
+**Example prompt for Claude Code:**
+```
+Add Vitest with coverage to this project. Configure lefthook.yml to enforce 80% test coverage. Block commits if coverage is below threshold.
+```
+
+---
+
+### Branch Protection Rules
+
+Protect critical branches (`dev`, `main`) using GitHub's branch protection:
+
+**GitHub Settings → Branches → Add rule:**
+
+1. **Branch name pattern:** `dev` (repeat for `main`)
+2. **✅ Require pull request before merging**
+3. **Require approvals:** 1+ (adjust based on team size)
+4. **✅ Require status checks to pass:**
+   - `ci/tests` (if you add test workflow)
+   - `ci/typecheck` (TypeScript validation)
+   - `ci/lint` (Biome linting)
+5. **✅ Require conversation resolution before merging**
+6. **Restrict who can push to matching branches:**
+   - Add team leads, senior developers, or DevOps engineers only
+   - Regular developers submit PRs instead
+
+**Why this matters:**
+- Prevents accidental commits to protected branches (backup to Lefthook hook)
+- Ensures code review process is followed
+- Validates CI/CD checks before merging
+- Maintains clean git history
+
+---
+
+### Code Owners (CODEOWNERS)
+
+Automatically assign reviewers based on file paths:
+
+```bash
+# .github/CODEOWNERS
+
+# Default owners for everything
+* @team-leads @senior-devs
+
+# Documentation requires docs team approval
+/docs/ @documentation-guardians
+README.md @documentation-guardians
+CLAUDE.md @ai-workflow-specialist
+
+# Architecture changes require architecture team
+/packages/ @architecture-team
+apps/web/plugins/ @architecture-team
+apps/web/server/ @architecture-team
+
+# UI components require design approval
+packages/ui/ @design-team @frontend-leads
+
+# CI/CD changes require DevOps
+.github/workflows/ @devops-team
+lefthook.yml @devops-team
+```
+
+**Benefits:**
+- Automatic reviewer assignment on PRs
+- Domain experts review relevant changes
+- Distributes review workload
+- Ensures documentation updates are validated
+
+---
+
+### CI/CD Workflows
+
+Add comprehensive GitHub Actions workflows for automated testing:
+
+```yaml
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev, main]
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
+      - run: bun run typecheck
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
+      - run: bun run lint
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
+      - run: bun test --coverage
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage/coverage-final.json
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
+      - run: cd apps/web && bun run build
+```
+
+**Recommended Checks:**
+- **Typecheck** - Validates TypeScript across all packages
+- **Lint** - Ensures code style consistency with Biome
+- **Test** - Runs unit and integration tests with coverage
+- **Build** - Validates production builds succeed
+
+---
+
+### Documentation Guardians
+
+Assign team members as documentation maintainers:
+
+| Documentation Area | Responsible Team | Review Scope |
+|-------------------|------------------|--------------|
+| **Architecture Docs** (`docs/architecture/`) | Senior Developers, Architects | System design, technical decisions |
+| **Development Guides** (`docs/development/`) | Tech Leads | Workflows, best practices |
+| **CLAUDE.md** | AI Workflow Specialist | Claude Code directives, conventions |
+| **App-Specific Docs** (`apps/*/docs/`) | Feature Teams | Business logic, APIs |
+| **Package Docs** (`packages/*/docs/`) | Package Maintainers | Component APIs, usage guides |
+
+**Documentation Review Process:**
+1. PRs touching docs require approval from documentation guardian (use CODEOWNERS)
+2. Monthly documentation review meetings to identify outdated content
+3. Quarterly cleanup of deprecated patterns and obsolete guides
+4. Documentation updates as acceptance criteria for features
+
+**Example CODEOWNERS entry:**
+```bash
+/docs/architecture/ @senior-dev @tech-architect
+/docs/development/ @tech-lead
+CLAUDE.md @ai-specialist
+apps/web/docs/ @frontend-team
+packages/ui/docs/ @design-system-team
+```
+
+---
+
+### Additional Recommendations
+
+**1. Commit Message Validation**
+Use [commitlint](https://commitlint.js.org/) to enforce conventional commits:
+
+```yaml
+# lefthook.yml
+commit-msg:
+  commands:
+    commitlint:
+      run: bunx commitlint --edit {1}
+```
+
+**2. Dependency Security**
+Add automated dependency scanning:
+
+```yaml
+# .github/workflows/security.yml
+- uses: actions/dependency-review-action@v3
+```
+
+**3. Pre-Push Hooks**
+Run full test suite before pushing:
+
+```yaml
+# lefthook.yml
+pre-push:
+  commands:
+    test:
+      run: bun test
+```
+
+**4. Release Management**
+Use [changesets](https://github.com/changesets/changesets) for package versioning:
+
+```bash
+bun add -D @changesets/cli
+bunx changeset init
+```
+
+---
+
+### Quick Setup Checklist
+
+When starting a new project with this template:
+
+- [ ] Configure branch protection on GitHub (dev, main)
+- [ ] Create CODEOWNERS file with team assignments
+- [ ] Add CI/CD workflows (typecheck, lint, test, build)
+- [ ] Configure test coverage enforcement in pre-commit hook
+- [ ] Set up documentation guardians and review process
+- [ ] Add commitlint for commit message validation
+- [ ] Configure dependency security scanning
+- [ ] Set up release management (if publishing packages)
+
+---
 
 ## 🤝 Contributing
 

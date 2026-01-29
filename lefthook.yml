@@ -1,0 +1,48 @@
+# Lefthook Configuration
+# See: https://github.com/evilmartians/lefthook
+
+pre-commit:
+  parallel: false
+  commands:
+    block-dev-branch:
+      runner: bash
+      run: |
+        BRANCH=$(git branch --show-current)
+
+        if [ "$BRANCH" = "dev" ]; then
+          echo ""
+          echo "❌ ERROR: Direct commits to 'dev' branch are not allowed!"
+          echo ""
+          echo "📋 Required workflow:"
+          echo "  1. Create feature branch: git checkout -b feature/your-feature-name"
+          echo "  2. Make your changes and commit"
+          echo "  3. Push and create Pull Request to 'dev'"
+          echo ""
+          echo "💡 If you have uncommitted changes on dev, run:"
+          echo "   git checkout -b feature/your-feature-name"
+          echo "   (this will keep your changes and move them to the new branch)"
+          echo ""
+          exit 1
+        fi
+
+        echo "✅ Commit allowed on branch: $BRANCH"
+
+# Future: Add test coverage enforcement
+# Uncomment when tests are configured in your project:
+#
+# pre-commit:
+#   commands:
+#     test-coverage:
+#       run: |
+#         echo "🧪 Running tests with coverage..."
+#         bun test --coverage
+#
+#         COVERAGE=$(bun test --coverage --silent | grep "All files" | awk '{print $10}' | sed 's/%//')
+#
+#         if [ "$COVERAGE" -lt 80 ]; then
+#           echo "❌ Test coverage below 80% (current: ${COVERAGE}%)"
+#           echo "Please add tests before committing."
+#           exit 1
+#         fi
+#
+#         echo "✅ Test coverage: ${COVERAGE}%"

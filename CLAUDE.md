@@ -40,6 +40,31 @@ git flow feature start <feature-name>
 git flow feature finish <feature-name>
 ```
 
+### Git Hooks (Lefthook)
+
+This project uses [Lefthook](https://github.com/evilmartians/lefthook) for git hooks management.
+
+**Configuration:** `lefthook.yml` in project root
+
+**Current Hooks:**
+- `pre-commit`: Blocks direct commits to `dev` branch
+
+**Adding New Hooks:**
+Update `lefthook.yml`:
+```yaml
+pre-commit:
+  commands:
+    your-hook-name:
+      run: your command here
+```
+
+**Bypass (emergency only):**
+```bash
+git commit --no-verify
+```
+
+**Installation:** Automatic via `bun install` (prepare script)
+
 ## Development Workflow
 
 ### Branch Management
@@ -84,6 +109,60 @@ git commit -m "feat(server): add user authentication endpoint"
 git commit -m "fix(web): resolve hydration mismatch in TodoList"
 git commit -m "docs: update CLAUDE.md with workflow guidelines"
 ```
+
+#### Pre-Commit Documentation Checklist
+
+**MANDATORY: Before executing `git commit`, Claude MUST:**
+
+1. **Analyze staged changes:**
+   ```bash
+   git diff --cached --name-status
+   ```
+
+2. **Categorize impact:**
+   - 🔴 **Structural**: Plugins, server actions, env system, build config, CI/CD
+     → Likely affects: CLAUDE.md, docs/architecture/, README.md
+
+   - 🟡 **Feature**: New routes, components, API endpoints, server actions
+     → Likely affects: docs/guides/, app-specific docs/, CHANGELOG.md
+
+   - 🟢 **Fix/Refactor**: Bug fixes, code improvements, minor updates
+     → Likely affects: CHANGELOG.md only (or nothing)
+
+3. **Check documentation status:**
+   Run through this checklist mentally:
+   - [ ] Does this change how developers USE the system? → Update docs/
+   - [ ] Does this introduce new CONVENTIONS? → Update CLAUDE.md
+   - [ ] Does this change SETUP/COMMANDS? → Update README.md
+   - [ ] Is this a PUBLIC package change? → Update CHANGELOG.md
+   - [ ] Does this change PUBLIC APIs? → Update JSDoc/TSDoc
+
+4. **Ask user explicitly:**
+   ```
+   📋 Documentation Checklist (based on changes):
+
+   Changes detected:
+   - Modified: apps/web/plugins/server-actions.ts (🔴 Structural)
+   - Modified: apps/web/server/actions-handler.ts (🔴 Structural)
+
+   Potentially affected documentation:
+   - CLAUDE.md (server actions implementation)
+   - docs/architecture/server-actions.md
+
+   Should I update documentation before committing? (y/n)
+   ```
+
+5. **Only commit after:**
+   - User confirms docs updated, OR
+   - User explicitly says "no docs needed", OR
+   - Changes are trivial (typos, formatting, comments)
+
+**Examples of trivial changes (skip checklist):**
+- Fixing typos in comments or strings
+- Running `bun format` or linting
+- Updating `.gitignore`
+- Changing log messages
+- Minor refactoring without API changes
 
 **When Asked to Commit on dev Branch:**
 When the user requests a commit and you detect changes are on the `dev` branch, you MUST:
