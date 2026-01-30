@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import {
 	createTodo,
@@ -8,11 +7,7 @@ import {
 	toggleTodo,
 } from "./-actions/todos-actions.server";
 
-export const Route = createFileRoute("/server-actions")({
-	component: ServerFunctionPage,
-});
-
-function ServerFunctionPage() {
+export function ServerActionsPage() {
 	const [newTodoTitle, setNewTodoTitle] = useState("");
 	const queryClient = useQueryClient();
 

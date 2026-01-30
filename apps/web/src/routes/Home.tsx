@@ -1,3 +1,4 @@
+import type { User } from "@monorepo/api/schemas/user";
 import { Button } from "@monorepo/ui/components/button";
 import {
 	Card,
@@ -6,34 +7,24 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@monorepo/ui/components/card";
-import { createFileRoute } from "@tanstack/react-router";
-import { Link } from "../components/Link";
-import { fetchUsers } from "./-actions/users-actions.server";
-import { EnvDebug } from "../components/EnvDebug";
+import { useLoaderData } from "react-router-dom";
+import { EnvDebug } from "@/components/EnvDebug";
+import { Link } from "@/components/Link";
+import { fetchUsers } from "../routes/-actions/users-actions.server";
+import { useQuery } from "@tanstack/react-query";
 
-export const Route = createFileRoute("/")({
-	component: Home,
-	loader: async () => {
-		const usersData = await fetchUsers();
-		return { usersData, loadedAt: new Date().toISOString() };
-	},
-});
+type LoaderData = {
+	usersData: User[];
+	loadedAt: string;
+};
 
-function Home() {
-	const { usersData } = Route.useLoaderData();
-
-	// const { data: usersData = [], isLoading } = useQuery({
-	// 	queryKey: ["users"],
-	// 	queryFn: fetchUsers,
-	// });
-	//
-	// if (isLoading) {
-	// 	return (
-	// 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-	// 			<div className="text-center">Loading...</div>
-	// 		</div>
-	// 	);
-	// }
+export default function HomePage() {
+	const { usersData: preLoaded } = useLoaderData() as LoaderData;
+	const { data: usersData = [], isLoading } = useQuery({
+		queryKey: ["users"],
+		queryFn: fetchUsers,
+		initialData: preLoaded,
+	});
 
 	return (
 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -43,7 +34,7 @@ function Home() {
 						Welcome to Monorepo Bun
 					</h1>
 					<p className="text-lg text-slate-600">
-						React + Vite + TanStack Router + Hono SSR + Elysia Backend
+						React + Vite + React Router + Hono SSR + Elysia Backend
 					</p>
 				</div>
 
@@ -87,7 +78,7 @@ function Home() {
 								</CardHeader>
 								<CardContent>
 									<p className="text-sm text-slate-600">
-										Demonstrates SSR with TanStack Router, loading data on the
+										Demonstrates SSR with React Router, loading data on the
 										server before rendering.
 									</p>
 								</CardContent>
@@ -197,7 +188,7 @@ function Home() {
 							</CardHeader>
 							<CardContent>
 								<p className="text-sm text-slate-600">
-									Frontend with React, Vite, TanStack Router, and shadcn/ui
+									Frontend with React, Vite, React Router, and shadcn/ui
 									components.
 								</p>
 							</CardContent>
@@ -205,15 +196,14 @@ function Home() {
 
 						<Card>
 							<CardHeader>
-								<CardTitle>TanStack Router</CardTitle>
+								<CardTitle>React Router</CardTitle>
 								<CardDescription>
-									Type-safe routing with loaders
+									Industry-standard routing with loaders
 								</CardDescription>
 							</CardHeader>
 							<CardContent>
 								<p className="text-sm text-slate-600">
-									File-based routing with auto code-splitting and typed
-									contexts.
+									SSR-ready routing with data loading and typed routes.
 								</p>
 							</CardContent>
 						</Card>
@@ -259,27 +249,38 @@ function Home() {
 							This data was fetched from the backend during server execution.
 						</p>
 					</div>
-
-					<div className="space-y-2">
-						{usersData.map((user) => (
-							<Card key={user.id}>
-								<CardContent className="p-4">
-									<div className="flex items-center justify-between">
-										<div>
-											<h3 className="font-semibold">{user.name}</h3>
-											<p className="text-sm text-slate-500">{user.email}</p>
+					{isLoading ? (
+						<p>Loading users...</p>
+					) : (
+						<div className="space-y-2">
+							{usersData.map((user) => (
+								<Card key={user.id}>
+									<CardContent className="p-4">
+										<div className="flex items-center justify-between">
+											<div>
+												<h3 className="font-semibold">{user.name}</h3>
+												<p className="text-sm text-slate-500">{user.email}</p>
+											</div>
+											<Button variant="outline" size="sm">
+												View
+											</Button>
 										</div>
-										<Button variant="outline" size="sm">
-											View
-										</Button>
-									</div>
-								</CardContent>
-							</Card>
-						))}
-					</div>
+									</CardContent>
+								</Card>
+							))}
+						</div>
+					)}
 				</div>
 				<EnvDebug />
 			</div>
 		</div>
 	);
+}
+
+// Loader function - will be imported in routes.tsx
+export async function userLoader() {
+	console.log("Running SSR example loader");
+
+	const usersData = await fetchUsers();
+	return { usersData, loadedAt: new Date().toISOString() };
 }

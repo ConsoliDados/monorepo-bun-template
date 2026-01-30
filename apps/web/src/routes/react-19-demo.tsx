@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { ProfileForm } from "../components/react19/ProfileForm";
 import { CommentsSection } from "../components/react19/CommentsSection";
@@ -6,13 +5,14 @@ import { AsyncDataDisplay } from "../components/react19/AsyncDataDisplay";
 import { MultiStepForm } from "../components/react19/MultiStepForm";
 import { FileUploadForm } from "../components/react19/FileUploadForm";
 
-export const Route = createFileRoute("/react-19-demo")({
-	component: React19DemoPage,
-});
+type Tab =
+	| "useActionState"
+	| "useOptimistic"
+	| "use"
+	| "useFormStatus"
+	| "fileUpload";
 
-type Tab = "useActionState" | "useOptimistic" | "use" | "useFormStatus" | "fileUpload";
-
-function React19DemoPage() {
+export function React19DemoPage() {
 	const [activeTab, setActiveTab] = useState<Tab>("useActionState");
 
 	const tabs: { id: Tab; label: string; emoji: string }[] = [
@@ -60,9 +60,7 @@ function React19DemoPage() {
 					</div>
 					<div className="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
 						<div className="text-2xl mb-2">🎯</div>
-						<h3 className="font-semibold text-slate-900 mb-1">
-							Simpler Code
-						</h3>
+						<h3 className="font-semibold text-slate-900 mb-1">Simpler Code</h3>
 						<p className="text-sm text-slate-600">
 							Less boilerplate, automatic state management
 						</p>
