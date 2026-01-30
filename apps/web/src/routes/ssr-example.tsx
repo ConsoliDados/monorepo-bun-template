@@ -1,34 +1,23 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { useLoaderData } from "react-router-dom";
 
-// Simulating an API call that runs on the server
-async function fetchUserData() {
-	// Simulate network delay
-	await new Promise((resolve) => setTimeout(resolve, 100));
-
-	return {
-		name: "John Silva",
-		email: "john@example.com",
-		registeredAt: new Date().toISOString(),
-		stats: {
-			posts: 42,
-			followers: 1337,
-			following: 256,
-		},
+type UserData = {
+	name: string;
+	email: string;
+	registeredAt: string;
+	stats: {
+		posts: number;
+		followers: number;
+		following: number;
 	};
-}
+};
 
-export const Route = createFileRoute("/ssr-example")({
-	// Loader runs on the server during SSR
-	loader: async () => {
-		console.log("Running loader");
-		const userData = await fetchUserData();
-		return { userData, loadedAt: new Date().toISOString() };
-	},
-	component: SSRExamplePage,
-});
+type LoaderData = {
+	userData: UserData;
+	loadedAt: string;
+};
 
-function SSRExamplePage() {
-	const { userData, loadedAt } = Route.useLoaderData();
+export function SSRExamplePage() {
+	const { userData, loadedAt } = useLoaderData() as LoaderData;
 
 	return (
 		<div className="max-w-4xl mx-auto px-4 py-8">
@@ -97,4 +86,25 @@ function SSRExamplePage() {
 			</div>
 		</div>
 	);
+}
+
+// Loader function - will be imported in routes.tsx
+export async function ssrExampleLoader() {
+	console.log("Running SSR example loader");
+
+	// Simulating an API call that runs on the server
+	await new Promise((resolve) => setTimeout(resolve, 100));
+
+	const userData: UserData = {
+		name: "John Silva",
+		email: "john@example.com",
+		registeredAt: new Date().toISOString(),
+		stats: {
+			posts: 42,
+			followers: 1337,
+			following: 256,
+		},
+	};
+
+	return { userData, loadedAt: new Date().toISOString() };
 }

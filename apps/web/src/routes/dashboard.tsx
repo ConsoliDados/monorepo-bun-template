@@ -6,14 +6,9 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@monorepo/ui/components/card";
-import { createFileRoute } from "@tanstack/react-router";
 import { Link } from "../components/Link";
 
-export const Route = createFileRoute("/dashboard")({
-	component: Dashboard,
-});
-
-function Dashboard() {
+export function DashboardPage() {
 	return (
 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 			<div className="space-y-8">

@@ -1,10 +1,5 @@
 import { Button } from "@monorepo/ui/components/button";
-import { createFileRoute } from "@tanstack/react-router";
-import { type FormEvent, useEffect, useState } from "react";
-
-export const Route = createFileRoute("/client-example")({
-	component: ClientExamplePage,
-});
+import { type SubmitEvent, useEffect, useState } from "react";
 
 function Countdown() {
 	const [count, setCount] = useState(10);
@@ -85,7 +80,7 @@ function ContactForm() {
 	const [submitted, setSubmitted] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
-	const handleSubmit = async (e: FormEvent) => {
+	const handleSubmit = async (e: SubmitEvent) => {
 		e.preventDefault();
 		setIsLoading(true);
 
@@ -203,7 +198,7 @@ function ContactForm() {
 	);
 }
 
-function ClientExamplePage() {
+export function ClientExamplePage() {
 	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {

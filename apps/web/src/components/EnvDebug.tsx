@@ -4,7 +4,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@monorepo/ui/components/card";
-import { rootRouteId, useRouteContext } from "@tanstack/react-router";
+import { publicEnv } from "../../lib/env.public";
 
 /**
  * Debug component to display environment variables
@@ -12,8 +12,6 @@ import { rootRouteId, useRouteContext } from "@tanstack/react-router";
  * No need to edit this file when adding new VITE_* variables
  */
 export function EnvDebug() {
-	const { env } = useRouteContext({ from: rootRouteId });
-
 	return (
 		<Card className="bg-slate-50">
 			<CardHeader>
@@ -21,7 +19,7 @@ export function EnvDebug() {
 			</CardHeader>
 			<CardContent>
 				<div className="space-y-1 text-xs font-mono">
-					{Object.entries(env).map(([key, value]) => (
+					{Object.entries(publicEnv).map(([key, value]) => (
 						<div key={key}>
 							<span className="text-slate-600">{key}:</span>{" "}
 							<span className="font-semibold">{String(value)}</span>

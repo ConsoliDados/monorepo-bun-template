@@ -1,18 +1,18 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { renderToString } from "react-dom/server";
 import {
-	createRequestHandler,
-	RouterServer,
-	renderRouterToString,
-} from "@tanstack/react-router/ssr/server";
+	createStaticHandler,
+	createStaticRouter,
+	StaticRouterProvider,
+} from "react-router-dom/server";
 import { Hono } from "hono";
-import { publicEnv } from "../lib/env.public";
 import { handleServerAction } from "../server/actions-handler";
 import { loadApiRoutes } from "../server/api-loader";
 import { createMatcher, normalizePath } from "../server/middleware/matcher";
 import { loadUserMiddleware } from "../server/middleware/loader";
-import { createRouter } from "./router";
+import { routes } from "./routes";
 
 interface ViteManifestChunk {
 	file: string;
@@ -82,7 +82,6 @@ let userMiddleware: Awaited<ReturnType<typeof loadUserMiddleware>> | null =
 
 // Load user middleware lazily on first request
 app.use("*", async (c, next) => {
-	// Load middleware only once
 	if (!middlewareLoaded) {
 		console.log("[MIDDLEWARE] Loading user middleware...");
 		userMiddleware = await loadUserMiddleware();
@@ -94,20 +93,16 @@ app.use("*", async (c, next) => {
 		}
 	}
 
-	// If middleware exists, check if path matches
 	if (userMiddleware) {
 		const { middleware, config } = userMiddleware;
 		const matcher = createMatcher(config?.matcher);
 		const path = normalizePath(c.req.path);
 
-		// Check if the current path matches the middleware config
 		if (matcher(path)) {
-			// Execute user middleware
 			return await middleware(c, next);
 		}
 	}
 
-	// Path doesn't match or no middleware, continue
 	await next();
 });
 
@@ -121,6 +116,9 @@ app.post("/__server-actions", async (c) => {
 	return handleServerAction(c);
 });
 
+// Create static handler from routes (React Router v6)
+const handler = createStaticHandler(routes);
+
 // SSR Route Handler
 app.use("*", async (c) => {
 	const appCssHrefs = getAppCssHrefs();
@@ -131,30 +129,65 @@ app.use("*", async (c) => {
 			queries: {
 				staleTime: 1000 * 60,
 				refetchOnWindowFocus: false,
-				retry: false, // Don't retry on server
+				retry: false,
 			},
 		},
 	});
 
-	const handler = createRequestHandler({
-		request: c.req.raw,
-		createRouter: () => {
-			return createRouter({
-				queryClient,
-				env: publicEnv,
-				head: "",
-				appCssHrefs,
-			});
-		},
-	});
+	// Create fetch request from Hono context
+	const fetchRequest = c.req.raw;
 
-	return await handler(({ responseHeaders, router }) => {
-		return renderRouterToString({
-			responseHeaders,
-			router,
-			children: <RouterServer router={router} />,
-		});
-	});
+	// Query the routes (runs loaders/actions)
+	const context = await handler.query(fetchRequest);
+
+	// If context is a Response, return it (redirects, etc.)
+	if (context instanceof Response) {
+		return context;
+	}
+
+	// Create static router for SSR
+	const router = createStaticRouter(handler.dataRoutes, context);
+
+	// Render app to string
+	const appHtml = renderToString(
+		<QueryClientProvider client={queryClient}>
+			<StaticRouterProvider router={router} context={context} />
+		</QueryClientProvider>,
+	);
+
+	// Build HTML document
+	const html = `
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React Router v6 + Hono SSR</title>
+    <link rel="icon" href="/favicon.ico" />
+    ${appCssHrefs.map((href) => `<link rel="stylesheet" href="${href}" data-app-css="1" />`).join("\n    ")}
+    ${
+			import.meta.env.PROD
+				? ""
+				: `
+    <script type="module">
+      import RefreshRuntime from "/@react-refresh"
+      RefreshRuntime.injectIntoGlobalHook(window)
+      window.$RefreshReg$ = () => {}
+      window.$RefreshSig$ = () => (type) => type
+      window.__vite_plugin_react_preamble_installed__ = true
+    </script>
+    <script type="module" src="/@vite/client"></script>
+    `
+		}
+  </head>
+  <body>
+    ${appHtml}
+    <script type="module" src="${import.meta.env.PROD ? "/static/entry-client.js" : "/src/entry-client.tsx"}"></script>
+  </body>
+</html>
+  `.trim();
+
+	return c.html(html);
 });
 
 export default app;

@@ -6,15 +6,10 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@monorepo/ui/components/card";
-import { createFileRoute, Link as TanStackLink } from "@tanstack/react-router";
 import { useState } from "react";
 import { Link as CustomLink } from "../components/Link";
 
-export const Route = createFileRoute("/navigation-test")({
-	component: NavigationTest,
-});
-
-function NavigationTest() {
+export function NavigationTestPage() {
 	const [logs, setLogs] = useState<string[]>([]);
 
 	const addLog = (message: string) => {
@@ -54,6 +49,7 @@ function NavigationTest() {
 								</p>
 							) : (
 								logs.map((log, i) => (
+									// biome-ignore lint/suspicious/noArrayIndexKey: Example only
 									<div key={i} className="text-green-400">
 										{log}
 									</div>
@@ -94,7 +90,9 @@ function NavigationTest() {
 						{/* 2. Custom Link wrapper */}
 						<Card className="hover:shadow-lg transition-shadow">
 							<CardHeader>
-								<CardTitle className="text-lg">2. Custom Link Wrapper</CardTitle>
+								<CardTitle className="text-lg">
+									2. Custom Link Wrapper
+								</CardTitle>
 								<CardDescription>
 									Our <code>Link</code> with <code>reloadDocument</code>
 								</CardDescription>
@@ -125,7 +123,7 @@ function NavigationTest() {
 								</CardDescription>
 							</CardHeader>
 							<CardContent className="space-y-2">
-								<TanStackLink
+								<CustomLink
 									to="/dashboard"
 									className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-orange-600 text-white hover:bg-orange-700 h-10 px-4 py-2 w-full"
 									onClick={() =>
@@ -133,7 +131,7 @@ function NavigationTest() {
 									}
 								>
 									Go to Dashboard
-								</TanStackLink>
+								</CustomLink>
 								<p className="text-xs text-orange-800 font-semibold">
 									⚠️ Test: Does interceptor override TanStack?
 								</p>
@@ -425,17 +423,15 @@ function NavigationTest() {
 							trigger full page reload vs client-side navigation
 						</p>
 						<p>
-							<strong>3. Key Test: #3 TanStack Link</strong> - This will show
-							if the interceptor successfully overrides TanStack Router's
+							<strong>3. Key Test: #3 TanStack Link</strong> - This will show if
+							the interceptor successfully overrides TanStack Router's
 							client-side navigation
 						</p>
 						<p>
 							<strong>4. Expected Behavior:</strong>
 						</p>
 						<ul className="list-disc list-inside pl-4 space-y-1">
-							<li>
-								✅ Internal links (1-6): Full page reload (server-side)
-							</li>
+							<li>✅ Internal links (1-6): Full page reload (server-side)</li>
 							<li>
 								❌ External/special (7-12): Default browser behavior (no
 								interception)

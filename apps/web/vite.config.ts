@@ -1,6 +1,5 @@
 import { resolve } from "node:path";
 import devServer, { defaultOptions } from "@hono/vite-dev-server";
-import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import tsConfigPaths from "vite-tsconfig-paths";
@@ -45,10 +44,6 @@ export default defineConfig(({ mode }) => {
 	return {
 		plugins: [
 			serverActions(),
-			tanstackRouter({
-				target: "react",
-				autoCodeSplitting: true,
-			}),
 			react(),
 			tsConfigPaths({
 				projects: ["./tsconfig.json"],
@@ -80,10 +75,10 @@ export default defineConfig(({ mode }) => {
 			},
 		},
 		ssr: {
-			noExternal: ["@tanstack/react-router", "@tanstack/react-query"],
+			noExternal: ["@tanstack/react-query"],
 		},
 		optimizeDeps: {
-			include: ["react", "react-dom", "@tanstack/react-router"],
+			include: ["react", "react-dom"],
 		},
 	};
 });

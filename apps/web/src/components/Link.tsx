@@ -1,10 +1,10 @@
-import { type LinkProps, Link as TanStackLink } from "@tanstack/react-router";
+import { Link as RouterLink, type LinkProps } from "react-router-dom";
 import type { ComponentPropsWithoutRef } from "react";
 
 /**
  * Custom Link component that forces server-side navigation
  *
- * This component wraps TanStack Router's Link and adds `reloadDocument`
+ * This component wraps React Router's Link and adds `reloadDocument`
  * to ensure all navigation triggers a full page reload, passing through
  * server-side middleware.
  *
@@ -19,5 +19,5 @@ import type { ComponentPropsWithoutRef } from "react";
  * ```
  */
 export function Link(props: LinkProps & ComponentPropsWithoutRef<"a">) {
-	return <TanStackLink {...props} reloadDocument />;
+	return <RouterLink {...props} reloadDocument />;
 }
