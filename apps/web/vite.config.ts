@@ -4,6 +4,7 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import tsConfigPaths from "vite-tsconfig-paths";
 import { env } from "./lib/env";
+import fileBasedRouting from "./plugins/file-based-routing";
 import { serverActions } from "./plugins/server-actions";
 
 const port = env.frontendPort;
@@ -43,6 +44,7 @@ const clientBuild = {
 export default defineConfig(({ mode }) => {
 	return {
 		plugins: [
+			fileBasedRouting({ debug: true }),
 			serverActions(),
 			react(),
 			tsConfigPaths({
@@ -65,6 +67,10 @@ export default defineConfig(({ mode }) => {
 		},
 		build: mode === "client" ? clientBuild : ssrBuild,
 		server: {
+			watcher: {
+				ignored: ["**/node_modules/**"],
+				add: ["src/pages/**/*.tsx"],
+			},
 			host,
 			port,
 			proxy: {
