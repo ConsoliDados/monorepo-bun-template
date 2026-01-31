@@ -22,7 +22,7 @@ export default function DashboardPage() {
 				</div>
 
 				{/* Authentication Info Card */}
-				<Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+				<Card className="bg-linear-to-br from-green-50 to-emerald-50 border-green-200">
 					<CardHeader>
 						<CardTitle className="text-green-900">
 							✓ Authentication Successful

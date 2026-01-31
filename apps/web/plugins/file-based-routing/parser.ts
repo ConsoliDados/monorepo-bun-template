@@ -9,6 +9,7 @@ export interface ParsedExports {
 	hasDefaultExport: boolean;
 	hasLoader: boolean;
 	hasAction: boolean;
+	hasMeta: boolean;
 	defaultExportName?: string;
 }
 
@@ -61,10 +62,15 @@ export function parseFile(filePath: string): ParsedExports {
 			/export\s+async\s+function\s+action\s*\(/.test(content) ||
 			/export\s+function\s+action\s*\(/.test(content);
 
+		// Detect meta export (Phase 2)
+		// Matches: export const meta = {...}
+		const hasMeta = /export\s+const\s+meta\s*=/.test(content);
+
 		return {
 			hasDefaultExport,
 			hasLoader,
 			hasAction,
+			hasMeta,
 			defaultExportName,
 		};
 	} catch (error) {
@@ -73,6 +79,7 @@ export function parseFile(filePath: string): ParsedExports {
 			hasDefaultExport: false,
 			hasLoader: false,
 			hasAction: false,
+			hasMeta: false,
 		};
 	}
 }
@@ -165,4 +172,14 @@ export function generateLayoutName(segments: string[]): string {
 	});
 
 	return pascalParts.join("") + "Layout";
+}
+
+/**
+ * Generate meta name from component name
+ * UsersIdEditPage -> usersIdEditMeta
+ */
+export function generateMetaName(componentName: string): string {
+	// Remove "Page" suffix and make first letter lowercase
+	const withoutPage = componentName.replace(/Page$/, "");
+	return withoutPage.charAt(0).toLowerCase() + withoutPage.slice(1) + "Meta";
 }

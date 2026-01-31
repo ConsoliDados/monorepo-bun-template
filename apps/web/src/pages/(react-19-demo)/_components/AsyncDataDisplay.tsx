@@ -1,3 +1,5 @@
+/** biome-ignore-all lint/suspicious/noArrayIndexKey: Example code */
+/** biome-ignore-all lint/suspicious/noExplicitAny: Example code */
 "use client";
 
 import React, { Suspense, use, useState } from "react";
@@ -17,7 +19,7 @@ function DataContent({ dataPromise }: { dataPromise: Promise<AsyncData> }) {
 
 	return (
 		<div className="space-y-4">
-			<div className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
+			<div className="p-6 bg-linear-to-br from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
 				<h3 className="text-2xl font-bold text-slate-900 mb-2">{data.title}</h3>
 				<p className="text-slate-700 mb-4">{data.description}</p>
 
@@ -27,7 +29,7 @@ function DataContent({ dataPromise }: { dataPromise: Promise<AsyncData> }) {
 							key={index}
 							className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm"
 						>
-							<div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-semibold">
+							<div className="w-8 h-8 rounded-full bg-linear-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-semibold">
 								{index + 1}
 							</div>
 							<span className="text-slate-800">{item}</span>

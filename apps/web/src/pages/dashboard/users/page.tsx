@@ -1,7 +1,7 @@
 import type { User } from "@monorepo/api/schemas/user";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLoaderData } from "react-router-dom";
-import { fetchUsers } from "../../_actions/users-actions.server";
+import { fetchUsers } from "../_actions/users-actions.server";
 
 export async function loader() {
 	console.log("[LOADER] users/index - fetching users for SSR");
@@ -29,7 +29,7 @@ export default function UsersIndexPage() {
 				{users.map((user) => (
 					<Link
 						key={user.id}
-						to={`/users/${user.id}`}
+						to={`${user.id}`}
 						className="block p-4 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors"
 					>
 						<h3 className="font-semibold text-slate-900">{user.name}</h3>

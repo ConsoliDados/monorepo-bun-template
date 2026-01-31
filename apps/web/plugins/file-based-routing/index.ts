@@ -3,11 +3,15 @@
  * Auto-generates routes.tsx from src/pages/ directory
  */
 
-import { writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import type { Plugin } from "vite";
 import { buildRouteTree, generateRoutesFile } from "./generator";
 import { scanDirectory } from "./scanner";
+import {
+	generateLoaderTypeStubs,
+	generateTypeDeclarations,
+} from "./type-generator";
 import type { PluginOptions } from "./types";
 
 export default function fileBasedRoutingPlugin(
@@ -17,11 +21,16 @@ export default function fileBasedRoutingPlugin(
 		pagesDir = "pages",
 		outputFile = "routes.tsx",
 		debug = false,
+		typeGeneration = true,
+		typesDir = ".react-router/types",
+		metadataSupport = true,
+		codeSplitting = true,
 	} = options;
 
 	let srcDir: string;
 	let pagesPath: string;
 	let outputPath: string;
+	let typesPath: string;
 
 	/**
 	 * Generate routes from pages/ directory
@@ -44,15 +53,33 @@ export default function fileBasedRoutingPlugin(
 		const routeTree = buildRouteTree(scannedFiles, pagesPath);
 
 		// Generate routes.tsx content
-		const content = generateRoutesFile(routeTree, pagesDir);
+		const content = generateRoutesFile(routeTree, pagesDir, codeSplitting);
 
-		// Write to file
+		// Write routes.tsx
 		writeFileSync(outputPath, content, "utf-8");
-
 		console.log(`[file-based-routing] ✓ Generated ${outputFile}`);
 
+		// Generate TypeScript types if enabled
+		if (typeGeneration) {
+			const typeContent =
+				generateTypeDeclarations(routeTree) +
+				generateLoaderTypeStubs(routeTree);
+
+			// Ensure directory exists
+			mkdirSync(dirname(typesPath), { recursive: true });
+
+			// Write types file
+			writeFileSync(typesPath, typeContent, "utf-8");
+			console.log(
+				`[file-based-routing] ✓ Generated types at ${typesDir}/routes.d.ts`,
+			);
+		}
+
 		if (debug) {
-			console.log(`[file-based-routing] Written to: ${outputPath}`);
+			console.log(`[file-based-routing] Written routes to: ${outputPath}`);
+			if (typeGeneration) {
+				console.log(`[file-based-routing] Written types to: ${typesPath}`);
+			}
 		}
 	}
 
@@ -66,12 +93,14 @@ export default function fileBasedRoutingPlugin(
 			srcDir = join(config.root, "src");
 			pagesPath = join(srcDir, pagesDir);
 			outputPath = join(srcDir, outputFile);
+			typesPath = join(srcDir, typesDir, "routes.d.ts");
 
 			if (debug) {
 				console.log("[file-based-routing] Config resolved:");
 				console.log("  srcDir:", srcDir);
 				console.log("  pagesPath:", pagesPath);
 				console.log("  outputPath:", outputPath);
+				console.log("  typesPath:", typesPath);
 			}
 		},
 

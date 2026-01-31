@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noArrayIndexKey: Example code */
 import { Link } from "react-router-dom";
 
 interface RouteExample {
@@ -31,7 +32,8 @@ const routeExamples: RouteExample[] = [
 		title: "Nested Directory",
 		description: "Directories create nested routes",
 		fileStructure: "pages/dashboard/page.tsx",
-		generatedRoute: '{ path: "dashboard", children: [{ index: true, element: <DashboardPage /> }] }',
+		generatedRoute:
+			'{ path: "dashboard", children: [{ index: true, element: <DashboardPage /> }] }',
 		url: "/dashboard",
 		category: "basic",
 	},
@@ -41,7 +43,8 @@ const routeExamples: RouteExample[] = [
 		title: "Layout with Index",
 		description: "Layout wraps all child routes",
 		fileStructure: "pages/users/layout.tsx\npages/users/page.tsx",
-		generatedRoute: '{ path: "users", element: <UsersLayout />, children: [{ index: true, element: <UsersPage /> }] }',
+		generatedRoute:
+			'{ path: "users", element: <UsersLayout />, children: [{ index: true, element: <UsersPage /> }] }',
 		url: "/users",
 		category: "nested",
 	},
@@ -49,7 +52,8 @@ const routeExamples: RouteExample[] = [
 		title: "Nested Route with Layout",
 		description: "Child routes inherit parent layout",
 		fileStructure: "pages/users/layout.tsx\npages/users/[id]/page.tsx",
-		generatedRoute: '{ path: "users", element: <UsersLayout />, children: [{ path: ":id", children: [{ index: true, element: <UsersIdPage /> }] }] }',
+		generatedRoute:
+			'{ path: "users", element: <UsersLayout />, children: [{ path: ":id", children: [{ index: true, element: <UsersIdPage /> }] }] }',
 		url: "/users/123",
 		category: "nested",
 	},
@@ -59,7 +63,8 @@ const routeExamples: RouteExample[] = [
 		title: "Dynamic Parameter",
 		description: "Brackets create dynamic route parameters",
 		fileStructure: "pages/users/[id]/page.tsx",
-		generatedRoute: '{ path: ":id", children: [{ index: true, element: <UsersIdPage /> }] }',
+		generatedRoute:
+			'{ path: ":id", children: [{ index: true, element: <UsersIdPage /> }] }',
 		url: "/users/:id",
 		category: "dynamic",
 	},
@@ -67,7 +72,8 @@ const routeExamples: RouteExample[] = [
 		title: "Multiple Pages in Dynamic Route",
 		description: "Add edit, delete, etc. as siblings to the index",
 		fileStructure: "pages/users/[id]/page.tsx\npages/users/[id]/edit.tsx",
-		generatedRoute: '{ path: ":id", children: [{ index: true, element: <UsersIdPage /> }, { path: "edit", element: <UsersIdEditPage /> }] }',
+		generatedRoute:
+			'{ path: ":id", children: [{ index: true, element: <UsersIdPage /> }, { path: "edit", element: <UsersIdEditPage /> }] }',
 		url: "/users/:id/edit",
 		category: "dynamic",
 	},
@@ -77,7 +83,8 @@ const routeExamples: RouteExample[] = [
 		title: "Organization Folder (Route Group)",
 		description: "Parentheses folders organize code without affecting URLs",
 		fileStructure: "pages/(company)/about/page.tsx",
-		generatedRoute: '{ path: "about", children: [{ index: true, element: <AboutPage /> }] }',
+		generatedRoute:
+			'{ path: "about", children: [{ index: true, element: <AboutPage /> }] }',
 		url: "/about",
 		category: "groups",
 	},
@@ -85,7 +92,8 @@ const routeExamples: RouteExample[] = [
 		title: "Nested Route Groups",
 		description: "Multiple route groups can be nested",
 		fileStructure: "pages/(company)/about/(mission-vision-values)/mission.tsx",
-		generatedRoute: '{ path: "about", children: [{ path: "mission", element: <AboutMissionPage /> }] }',
+		generatedRoute:
+			'{ path: "about", children: [{ path: "mission", element: <AboutMissionPage /> }] }',
 		url: "/about/mission",
 		category: "groups",
 	},
@@ -102,7 +110,8 @@ const routeExamples: RouteExample[] = [
 	{
 		title: "Excluded Folders",
 		description: "Folders starting with _ are ignored",
-		fileStructure: "pages/_components/Button.tsx\npages/_actions/user-actions.server.ts",
+		fileStructure:
+			"pages/_components/Button.tsx\npages/_actions/user-actions.server.ts",
 		generatedRoute: "Not included in routes",
 		url: "N/A",
 		category: "special",
@@ -135,8 +144,12 @@ export default function RoutingDocsPage() {
 						File-Based Routing System
 					</h1>
 					<p className="text-lg text-slate-600 max-w-3xl mx-auto">
-						A powerful Next.js-style file-based routing plugin for React Router v6.
-						Define your routes by creating files in the <code className="bg-slate-200 px-2 py-1 rounded text-sm">pages/</code> directory.
+						A powerful Next.js-style file-based routing plugin for React Router
+						v6. Define your routes by creating files in the{" "}
+						<code className="bg-slate-200 px-2 py-1 rounded text-sm">
+							pages/
+						</code>{" "}
+						directory.
 					</p>
 				</div>
 
@@ -144,21 +157,27 @@ export default function RoutingDocsPage() {
 				<div className="grid md:grid-cols-3 gap-6 mb-12">
 					<div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
 						<div className="text-3xl mb-3">🚀</div>
-						<h3 className="text-lg font-semibold text-slate-900 mb-2">Zero Config</h3>
+						<h3 className="text-lg font-semibold text-slate-900 mb-2">
+							Zero Config
+						</h3>
 						<p className="text-slate-600">
 							Just create files in pages/ and routes are automatically generated
 						</p>
 					</div>
 					<div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
 						<div className="text-3xl mb-3">🔥</div>
-						<h3 className="text-lg font-semibold text-slate-900 mb-2">Hot Reload</h3>
+						<h3 className="text-lg font-semibold text-slate-900 mb-2">
+							Hot Reload
+						</h3>
 						<p className="text-slate-600">
 							Add, edit, or delete route files and see changes instantly
 						</p>
 					</div>
 					<div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
 						<div className="text-3xl mb-3">📁</div>
-						<h3 className="text-lg font-semibold text-slate-900 mb-2">Organization</h3>
+						<h3 className="text-lg font-semibold text-slate-900 mb-2">
+							Organization
+						</h3>
 						<p className="text-slate-600">
 							Use route groups to organize code without affecting URLs
 						</p>
@@ -167,25 +186,76 @@ export default function RoutingDocsPage() {
 
 				{/* Conventions Section */}
 				<div className="bg-white p-8 rounded-lg shadow-sm border border-slate-200 mb-12">
-					<h2 className="text-2xl font-bold text-slate-900 mb-6">File Conventions</h2>
+					<h2 className="text-2xl font-bold text-slate-900 mb-6">
+						File Conventions
+					</h2>
 					<div className="grid md:grid-cols-2 gap-6">
 						<div>
-							<h3 className="font-semibold text-slate-900 mb-2">Special Files</h3>
+							<h3 className="font-semibold text-slate-900 mb-2">
+								Special Files
+							</h3>
 							<ul className="space-y-2 text-slate-600">
-								<li><code className="bg-slate-100 px-2 py-1 rounded text-sm">layout.tsx</code> - Shared UI wrapper</li>
-								<li><code className="bg-slate-100 px-2 py-1 rounded text-sm">page.tsx</code> - Index route for directory</li>
-								<li><code className="bg-slate-100 px-2 py-1 rounded text-sm">index.tsx</code> - Alternative to page.tsx</li>
-								<li><code className="bg-slate-100 px-2 py-1 rounded text-sm">error.tsx</code> - Error boundary (future)</li>
-								<li><code className="bg-slate-100 px-2 py-1 rounded text-sm">loading.tsx</code> - Loading state (future)</li>
+								<li>
+									<code className="bg-slate-100 px-2 py-1 rounded text-sm">
+										layout.tsx
+									</code>{" "}
+									- Shared UI wrapper
+								</li>
+								<li>
+									<code className="bg-slate-100 px-2 py-1 rounded text-sm">
+										page.tsx
+									</code>{" "}
+									- Index route for directory
+								</li>
+								<li>
+									<code className="bg-slate-100 px-2 py-1 rounded text-sm">
+										index.tsx
+									</code>{" "}
+									- Alternative to page.tsx
+								</li>
+								<li>
+									<code className="bg-slate-100 px-2 py-1 rounded text-sm">
+										error.tsx
+									</code>{" "}
+									- Error boundary (future)
+								</li>
+								<li>
+									<code className="bg-slate-100 px-2 py-1 rounded text-sm">
+										loading.tsx
+									</code>{" "}
+									- Loading state (future)
+								</li>
 							</ul>
 						</div>
 						<div>
-							<h3 className="font-semibold text-slate-900 mb-2">Naming Patterns</h3>
+							<h3 className="font-semibold text-slate-900 mb-2">
+								Naming Patterns
+							</h3>
 							<ul className="space-y-2 text-slate-600">
-								<li><code className="bg-slate-100 px-2 py-1 rounded text-sm">[id]</code> - Dynamic parameter</li>
-								<li><code className="bg-slate-100 px-2 py-1 rounded text-sm">(group)</code> - Route group (ignored in URL)</li>
-								<li><code className="bg-slate-100 px-2 py-1 rounded text-sm">_folder</code> - Excluded from routing</li>
-								<li><code className="bg-slate-100 px-2 py-1 rounded text-sm">any-name.tsx</code> - Becomes a route path</li>
+								<li>
+									<code className="bg-slate-100 px-2 py-1 rounded text-sm">
+										[id]
+									</code>{" "}
+									- Dynamic parameter
+								</li>
+								<li>
+									<code className="bg-slate-100 px-2 py-1 rounded text-sm">
+										(group)
+									</code>{" "}
+									- Route group (ignored in URL)
+								</li>
+								<li>
+									<code className="bg-slate-100 px-2 py-1 rounded text-sm">
+										_folder
+									</code>{" "}
+									- Excluded from routing
+								</li>
+								<li>
+									<code className="bg-slate-100 px-2 py-1 rounded text-sm">
+										any-name.tsx
+									</code>{" "}
+									- Becomes a route path
+								</li>
 							</ul>
 						</div>
 					</div>
@@ -255,9 +325,12 @@ export default function RoutingDocsPage() {
 
 				{/* Live Routes Section */}
 				<div className="mt-12 bg-white p-8 rounded-lg shadow-sm border border-slate-200">
-					<h2 className="text-2xl font-bold text-slate-900 mb-4">Try It Yourself</h2>
+					<h2 className="text-2xl font-bold text-slate-900 mb-4">
+						Try It Yourself
+					</h2>
 					<p className="text-slate-600 mb-6">
-						All these routes are live in this application. Click the links below to explore:
+						All these routes are live in this application. Click the links below
+						to explore:
 					</p>
 					<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
 						<Link
@@ -320,10 +393,18 @@ export default function RoutingDocsPage() {
 				{/* Footer */}
 				<div className="mt-12 text-center text-slate-600">
 					<p className="mb-2">
-						This routing system is automatically generated from the <code className="bg-slate-200 px-2 py-1 rounded text-sm">pages/</code> directory.
+						This routing system is automatically generated from the{" "}
+						<code className="bg-slate-200 px-2 py-1 rounded text-sm">
+							pages/
+						</code>{" "}
+						directory.
 					</p>
 					<p className="text-sm">
-						Check <code className="bg-slate-200 px-2 py-1 rounded text-sm">src/routes.tsx</code> to see the generated React Router configuration.
+						Check{" "}
+						<code className="bg-slate-200 px-2 py-1 rounded text-sm">
+							src/routes.tsx
+						</code>{" "}
+						to see the generated React Router configuration.
 					</p>
 				</div>
 			</div>

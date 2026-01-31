@@ -54,7 +54,7 @@ export default function UserIdPage() {
 				</Link>
 			</div>
 
-			<div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-8 border border-purple-100">
+			<div className="bg-linear-to-br from-purple-50 to-blue-50 rounded-xl p-8 border border-purple-100">
 				<div className="flex items-center gap-4 mb-6">
 					<div className="w-16 h-16 bg-purple-200 rounded-full flex items-center justify-center">
 						<span className="text-2xl font-bold text-purple-700">

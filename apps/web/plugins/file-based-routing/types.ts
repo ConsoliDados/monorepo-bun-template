@@ -9,6 +9,14 @@ export interface PluginOptions {
 	outputFile?: string;
 	/** Enable debug logging */
 	debug?: boolean;
+	/** Enable code splitting with React.lazy() (default: true) */
+	codeSplitting?: boolean;
+	/** Enable TypeScript type generation (default: true) */
+	typeGeneration?: boolean;
+	/** Directory for generated types (default: '.react-router/types') */
+	typesDir?: string;
+	/** Enable route metadata support (default: true) */
+	metadataSupport?: boolean;
 }
 
 export interface RouteFile {
@@ -24,12 +32,16 @@ export interface RouteFile {
 	hasLoader: boolean;
 	/** Whether file has action export */
 	hasAction: boolean;
+	/** Whether file has meta export (Phase 2) */
+	hasMeta: boolean;
 	/** Generated component name */
 	componentName: string;
 	/** Generated loader name */
 	loaderName?: string;
 	/** Generated action name */
 	actionName?: string;
+	/** Generated meta name (Phase 2) */
+	metaName?: string;
 }
 
 export interface RouteNode {

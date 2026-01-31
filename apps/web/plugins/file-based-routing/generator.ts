@@ -13,6 +13,7 @@ import {
 	generateComponentName,
 	generateLayoutName,
 	generateLoaderName,
+	generateMetaName,
 	parseFile,
 } from "./parser";
 
@@ -114,9 +115,13 @@ export function buildRouteTree(
 					hasDefaultExport: exports.hasDefaultExport,
 					hasLoader: exports.hasLoader,
 					hasAction: exports.hasAction,
+					hasMeta: exports.hasMeta,
 					componentName,
 					loaderName: exports.hasLoader
 						? generateLoaderName(componentName)
+						: undefined,
+					metaName: exports.hasMeta
+						? generateMetaName(componentName)
 						: undefined,
 				};
 			} else if (fileName === "page.tsx" || fileName === "index.tsx") {
@@ -129,9 +134,13 @@ export function buildRouteTree(
 					hasDefaultExport: exports.hasDefaultExport,
 					hasLoader: exports.hasLoader,
 					hasAction: exports.hasAction,
+					hasMeta: exports.hasMeta,
 					componentName,
 					loaderName: exports.hasLoader
 						? generateLoaderName(componentName)
+						: undefined,
+					metaName: exports.hasMeta
+						? generateMetaName(componentName)
 						: undefined,
 				};
 			} else if (fileType === "error") {
@@ -143,9 +152,13 @@ export function buildRouteTree(
 					hasDefaultExport: exports.hasDefaultExport,
 					hasLoader: exports.hasLoader,
 					hasAction: exports.hasAction,
+					hasMeta: exports.hasMeta,
 					componentName,
 					loaderName: exports.hasLoader
 						? generateLoaderName(componentName)
+						: undefined,
+					metaName: exports.hasMeta
+						? generateMetaName(componentName)
 						: undefined,
 				};
 			} else if (fileType === "loading") {
@@ -157,9 +170,13 @@ export function buildRouteTree(
 					hasDefaultExport: exports.hasDefaultExport,
 					hasLoader: exports.hasLoader,
 					hasAction: exports.hasAction,
+					hasMeta: exports.hasMeta,
 					componentName,
 					loaderName: exports.hasLoader
 						? generateLoaderName(componentName)
+						: undefined,
+					metaName: exports.hasMeta
+						? generateMetaName(componentName)
 						: undefined,
 				};
 			} else {
@@ -186,9 +203,13 @@ export function buildRouteTree(
 						hasDefaultExport: exports.hasDefaultExport,
 						hasLoader: exports.hasLoader,
 						hasAction: exports.hasAction,
+						hasMeta: exports.hasMeta,
 						componentName,
 						loaderName: exports.hasLoader
 							? generateLoaderName(componentName)
+							: undefined,
+						metaName: exports.hasMeta
+							? generateMetaName(componentName)
 							: undefined,
 					},
 				};
@@ -213,7 +234,11 @@ export function buildRouteTree(
 					hasDefaultExport: exports.hasDefaultExport,
 					hasLoader: exports.hasLoader,
 					hasAction: exports.hasAction,
+					hasMeta: exports.hasMeta,
 					componentName: "Layout",
+					metaName: exports.hasMeta
+						? generateMetaName("Layout")
+						: undefined,
 				};
 			} else if (fileName === "page.tsx" || fileName === "index.tsx") {
 				// page.tsx or index.tsx become the root index route
@@ -225,9 +250,13 @@ export function buildRouteTree(
 					hasDefaultExport: exports.hasDefaultExport,
 					hasLoader: exports.hasLoader,
 					hasAction: exports.hasAction,
+					hasMeta: exports.hasMeta,
 					componentName,
 					loaderName: exports.hasLoader
 						? generateLoaderName(componentName)
+						: undefined,
+					metaName: exports.hasMeta
+						? generateMetaName(componentName)
 						: undefined,
 				};
 			} else {
@@ -254,9 +283,13 @@ export function buildRouteTree(
 						hasDefaultExport: exports.hasDefaultExport,
 						hasLoader: exports.hasLoader,
 						hasAction: exports.hasAction,
+						hasMeta: exports.hasMeta,
 						componentName,
 						loaderName: exports.hasLoader
 							? generateLoaderName(componentName)
+							: undefined,
+						metaName: exports.hasMeta
+							? generateMetaName(componentName)
 							: undefined,
 					},
 				};
@@ -288,33 +321,84 @@ function buildFullPath(segments: string[]): string {
 /**
  * Generate import statement for a route file
  */
-function generateImport(file: RouteFile, pagesDir: string): string {
+function generateImport(
+	file: RouteFile,
+	pagesDir: string,
+	codeSplitting: boolean,
+): string {
 	// Convert absolute path to relative import from src/
 	const importPath = file.relativePath.replace(/\.tsx$/, "");
 
+	// Layouts should never be lazy (they're wrappers)
 	if (file.type === "layout") {
 		return `import ${file.componentName} from './${pagesDir}/${importPath}';`;
 	}
 
-	// For pages with loaders, import both component and loader
-	if (file.hasLoader) {
-		return `import ${file.componentName}, { loader as ${file.loaderName} } from './${pagesDir}/${importPath}';`;
+	// Build named imports list (loader, meta)
+	const namedImports: string[] = [];
+	if (file.hasLoader && file.loaderName) {
+		namedImports.push(`loader as ${file.loaderName}`);
+	}
+	if (file.hasMeta && file.metaName) {
+		namedImports.push(`meta as ${file.metaName}`);
+	}
+
+	// If code splitting enabled, use React.lazy for components
+	if (codeSplitting) {
+		const lazyImport = `const ${file.componentName} = lazy(() => import('./${pagesDir}/${importPath}'));`;
+
+		// If we have named imports (loader/meta), import them separately
+		if (namedImports.length > 0) {
+			const namedImportStr = `import { ${namedImports.join(", ")} } from './${pagesDir}/${importPath}';`;
+			return `${namedImportStr}\n${lazyImport}`;
+		}
+
+		return lazyImport;
+	}
+
+	// Non-lazy import (code splitting disabled)
+	if (namedImports.length > 0) {
+		return `import ${file.componentName}, { ${namedImports.join(", ")} } from './${pagesDir}/${importPath}';`;
 	}
 
 	return `import ${file.componentName} from './${pagesDir}/${importPath}';`;
 }
 
 /**
+ * Wrap element with Suspense if needed for lazy loading
+ */
+function wrapWithSuspense(
+	element: string,
+	indent: string,
+	codeSplitting: boolean,
+): string {
+	if (!codeSplitting) {
+		return element;
+	}
+
+	return `<Suspense fallback={<div>Loading...</div>}>\n${indent}  ${element}\n${indent}</Suspense>`;
+}
+
+/**
  * Generate RouteObject for a route node
  */
-function generateRouteObject(node: RouteNode, indent: string = "    "): string {
+function generateRouteObject(
+	node: RouteNode,
+	indent: string = "    ",
+	codeSplitting: boolean = false,
+): string {
 	const lines: string[] = [];
 	if (node.path === "/") {
 		lines.push(`${indent}{`);
 		lines.push(`${indent}  index: true,`);
 		if (node.page) {
 			// Only use page if there's no layout
-			lines.push(`${indent}  element: <${node.page.componentName} />,`);
+			const element = wrapWithSuspense(
+				`<${node.page.componentName} />`,
+				`${indent}  `,
+				codeSplitting,
+			);
+			lines.push(`${indent}  element: ${element},`);
 			// Add loader only if no layout (otherwise it goes on the index child)
 			if (node.page.hasLoader && node.page.loaderName) {
 				lines.push(`${indent}  loader: ${node.page.loaderName},`);
@@ -348,10 +432,19 @@ function generateRouteObject(node: RouteNode, indent: string = "    "): string {
 			lines.push(`${indent}  element: <${node.layout.componentName} />,`);
 		} else if (node.page && !hasChildren) {
 			// Has page but no children and no layout: page becomes element
-			lines.push(`${indent}  element: <${node.page.componentName} />,`);
+			const element = wrapWithSuspense(
+				`<${node.page.componentName} />`,
+				`${indent}  `,
+				codeSplitting,
+			);
+			lines.push(`${indent}  element: ${element},`);
 
 			if (node.page.hasLoader && node.page.loaderName) {
 				lines.push(`${indent}  loader: ${node.page.loaderName},`);
+			}
+
+			if (node.page.hasMeta && node.page.metaName) {
+				lines.push(`${indent}  handle: { meta: ${node.page.metaName} },`);
 			}
 		}
 		// else: Has page WITH children but NO layout -> page becomes index child (handled below)
@@ -364,10 +457,20 @@ function generateRouteObject(node: RouteNode, indent: string = "    "): string {
 			if (hasPageWithLayout || hasPageWithoutLayoutButWithChildren) {
 				lines.push(`${indent}    {`);
 				lines.push(`${indent}      index: true,`);
-				lines.push(`${indent}      element: <${node.page!.componentName} />,`);
+
+				const element = wrapWithSuspense(
+					`<${node.page!.componentName} />`,
+					`${indent}      `,
+					codeSplitting,
+				);
+				lines.push(`${indent}      element: ${element},`);
 
 				if (node.page?.hasLoader && node.page.loaderName) {
 					lines.push(`${indent}      loader: ${node.page.loaderName},`);
+				}
+
+				if (node.page?.hasMeta && node.page.metaName) {
+					lines.push(`${indent}      handle: { meta: ${node.page.metaName} },`);
 				}
 
 				lines.push(`${indent}    },`);
@@ -375,7 +478,7 @@ function generateRouteObject(node: RouteNode, indent: string = "    "): string {
 
 			// Add regular children
 			for (const child of node.children) {
-				const childStr = generateRouteObject(child, indent + "    ");
+				const childStr = generateRouteObject(child, indent + "    ", codeSplitting);
 				lines.push(childStr);
 			}
 
@@ -386,11 +489,7 @@ function generateRouteObject(node: RouteNode, indent: string = "    "): string {
 	} else {
 		// Root node - just generate children
 		for (const child of node.children) {
-			// if (node.path === "/") {
-			// 	child.children.push("");
-			// }
-
-			const childStr = generateRouteObject(child, indent);
+			const childStr = generateRouteObject(child, indent, codeSplitting);
 			lines.push(childStr);
 		}
 	}
@@ -404,6 +503,7 @@ function generateRouteObject(node: RouteNode, indent: string = "    "): string {
 export function generateRoutesFile(
 	routeTree: RouteNode,
 	pagesDir: string,
+	codeSplitting: boolean = false,
 ): string {
 	// Collect all route files
 	const allFiles: RouteFile[] = [];
@@ -422,7 +522,9 @@ export function generateRoutesFile(
 	collectFiles(routeTree);
 
 	// Generate imports
-	const imports = allFiles.map((file) => generateImport(file, pagesDir));
+	const imports = allFiles.map((file) =>
+		generateImport(file, pagesDir, codeSplitting),
+	);
 
 	// Check if root has layout (pages/layout.tsx)
 	const hasRootLayout = routeTree.layout;
@@ -436,13 +538,18 @@ export function generateRoutesFile(
 		: "import RootLayout from './pages/layout';";
 
 	// Generate route objects
-	const routeObjects = generateRouteObject(routeTree);
+	const routeObjects = generateRouteObject(routeTree, "    ", codeSplitting);
+
+	// Add React imports if code splitting is enabled
+	const reactImports = codeSplitting
+		? "import { lazy, Suspense } from 'react';\n"
+		: "";
 
 	// Build file content
 	const content = `// This file is auto-generated by file-based-routing plugin
 // DO NOT EDIT MANUALLY - changes will be overwritten
 
-import type { RouteObject } from 'react-router-dom';
+${reactImports}import type { RouteObject } from 'react-router-dom';
 ${rootLayoutImport}
 
 // Auto-generated imports

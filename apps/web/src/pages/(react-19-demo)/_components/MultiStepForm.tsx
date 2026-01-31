@@ -85,11 +85,11 @@ export function MultiStepForm() {
 		}
 	};
 
-	const saveStepData = (step: number, data: Partial<FormData>) => {
+	const saveStepData = (_step: number, data: Partial<FormData>) => {
 		setFormData((prev) => ({ ...prev, ...data }));
 	};
 
-	const handleNextStep = (e: React.FormEvent<HTMLFormElement>) => {
+	const handleNextStep = (e: React.SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		const form = e.currentTarget;
 		const data = new globalThis.FormData(form);

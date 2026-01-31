@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useLoaderData } from "react-router-dom";
 import {
 	createTodo,
 	deleteTodo,
 	fetchTodos,
-	toggleTodo,
 	type Todo,
+	toggleTodo,
 } from "./_actions/todos-actions.server";
-import { useLoaderData } from "react-router-dom";
 
 export default function ServerActionsPage() {
 	const [newTodoTitle, setNewTodoTitle] = useState("");
@@ -50,7 +50,7 @@ export default function ServerActionsPage() {
 		},
 	});
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = (e: React.SubmitEvent) => {
 		e.preventDefault();
 		if (newTodoTitle.trim()) {
 			createMutation.mutate(newTodoTitle);

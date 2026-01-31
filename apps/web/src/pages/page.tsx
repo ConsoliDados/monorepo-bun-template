@@ -39,7 +39,7 @@ export default function HomePage() {
 				</div>
 
 				{/* Examples Section */}
-				<div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-8 border border-purple-100">
+				<div className="bg-linear-to-br from-purple-50 to-blue-50 rounded-xl p-8 border border-purple-100">
 					<h2 className="text-2xl font-bold text-slate-900 mb-4 text-center">
 						Example Pages
 					</h2>
@@ -48,7 +48,7 @@ export default function HomePage() {
 					</p>
 					<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 						<Link to="/routing-docs" className="group">
-							<Card className="h-full hover:shadow-lg transition-all hover:scale-105 cursor-pointer bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200">
+							<Card className="h-full hover:shadow-lg transition-all hover:scale-105 cursor-pointer bg-linear-to-br from-purple-50 to-indigo-50 border-purple-200">
 								<CardHeader>
 									<CardTitle className="group-hover:text-purple-600 transition-colors">
 										📁 File-Based Routing
@@ -59,14 +59,15 @@ export default function HomePage() {
 								</CardHeader>
 								<CardContent>
 									<p className="text-sm text-slate-600">
-										Complete documentation with examples of layouts, dynamic routes, route groups, and more.
+										Complete documentation with examples of layouts, dynamic
+										routes, route groups, and more.
 									</p>
 								</CardContent>
 							</Card>
 						</Link>
 
 						<Link to="/react-19-demo" className="group">
-							<Card className="h-full hover:shadow-lg transition-all hover:scale-105 cursor-pointer bg-gradient-to-br from-pink-50 to-rose-50 border-pink-200">
+							<Card className="h-full hover:shadow-lg transition-all hover:scale-105 cursor-pointer bg-linear-to-br from-pink-50 to-rose-50 border-pink-200">
 								<CardHeader>
 									<CardTitle className="group-hover:text-pink-600 transition-colors">
 										✨ React 19 Demo
@@ -142,7 +143,7 @@ export default function HomePage() {
 						</Link>
 
 						<Link to="/dashboard" className="group">
-							<Card className="h-full hover:shadow-lg transition-all hover:scale-105 cursor-pointer bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+							<Card className="h-full hover:shadow-lg transition-all hover:scale-105 cursor-pointer bg-linear-to-br from-green-50 to-emerald-50 border-green-200">
 								<CardHeader>
 									<CardTitle className="group-hover:text-green-600 transition-colors">
 										🔒 Dashboard

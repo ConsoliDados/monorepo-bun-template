@@ -55,7 +55,7 @@ export function CommentsSection() {
 		},
 	});
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = (e: React.SubmitEvent) => {
 		e.preventDefault();
 		if (commentText.trim()) {
 			addCommentMutation.mutate(commentText);
@@ -137,7 +137,7 @@ export function CommentsSection() {
 							>
 								<div className="flex items-start justify-between mb-2">
 									<div className="flex items-center gap-2">
-										<div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center text-white font-semibold text-sm">
+										<div className="w-8 h-8 rounded-full bg-linear-to-br from-purple-400 to-blue-500 flex items-center justify-center text-white font-semibold text-sm">
 											{comment.author[0].toUpperCase()}
 										</div>
 										<div>

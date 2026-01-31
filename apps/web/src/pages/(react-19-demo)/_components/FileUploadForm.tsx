@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noArrayIndexKey: Example code */
 "use client";
 
 import { useActionState, useState } from "react";
