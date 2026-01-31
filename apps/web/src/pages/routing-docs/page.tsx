@@ -1,6 +1,14 @@
 /** biome-ignore-all lint/suspicious/noArrayIndexKey: Example code */
 import { Link } from "react-router-dom";
 
+// Route metadata for SEO and page information
+export const meta = {
+	title: "File-Based Routing Documentation",
+	description:
+		"Complete guide to the file-based routing system with examples and conventions",
+	keywords: ["routing", "file-based", "react-router", "documentation"],
+};
+
 interface RouteExample {
 	title: string;
 	description: string;
@@ -321,6 +329,42 @@ export default function RoutingDocsPage() {
 							</div>
 						</div>
 					))}
+				</div>
+
+				{/* Catch-All Routes Section */}
+				<div className="mt-12 bg-gradient-to-r from-purple-50 to-pink-50 p-8 rounded-lg shadow-sm border border-purple-200">
+					<h2 className="text-2xl font-bold text-slate-900 mb-4">
+						🎯 Catch-All Routes (New!)
+					</h2>
+					<p className="text-slate-700 mb-6">
+						Learn about powerful catch-all routing patterns for dynamic, multi-segment routes:
+					</p>
+					<div className="grid md:grid-cols-2 gap-4">
+						<Link
+							to="/routing-docs/catch-all-required"
+							className="block p-4 bg-white rounded-lg border-2 border-blue-300 hover:border-blue-500 transition-colors"
+						>
+							<div className="flex items-center gap-2 mb-2">
+								<code className="text-lg font-mono text-blue-700">[...slug]</code>
+								<span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Required</span>
+							</div>
+							<p className="text-sm text-slate-600">
+								Matches 1 or more segments. Perfect for docs, file browsers.
+							</p>
+						</Link>
+						<Link
+							to="/routing-docs/catch-all-optional"
+							className="block p-4 bg-white rounded-lg border-2 border-green-300 hover:border-green-500 transition-colors"
+						>
+							<div className="flex items-center gap-2 mb-2">
+								<code className="text-lg font-mono text-green-700">[[...slug]]</code>
+								<span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Optional</span>
+							</div>
+							<p className="text-sm text-slate-600">
+								Matches 0 or more segments. Perfect for blog indexes with articles.
+							</p>
+						</Link>
+					</div>
 				</div>
 
 				{/* Live Routes Section */}

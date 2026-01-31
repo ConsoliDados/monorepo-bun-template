@@ -11,6 +11,7 @@ export interface ParsedExports {
 	hasAction: boolean;
 	hasMeta: boolean;
 	defaultExportName?: string;
+	warnings?: string[];
 }
 
 /**
@@ -37,6 +38,7 @@ function toPascalCase(str: string): string {
 export function parseFile(filePath: string): ParsedExports {
 	try {
 		const content = readFileSync(filePath, "utf-8");
+		const warnings: string[] = [];
 
 		// Detect default export
 		const hasDefaultExport =
@@ -66,12 +68,31 @@ export function parseFile(filePath: string): ParsedExports {
 		// Matches: export const meta = {...}
 		const hasMeta = /export\s+const\s+meta\s*=/.test(content);
 
+		// Validation: Warn if no default export (for page/layout/error/loading files)
+		if (!hasDefaultExport && !filePath.includes("_")) {
+			// Ignore files in excluded folders
+			const fileName = filePath.split("/").pop() || "";
+			if (
+				fileName === "page.tsx" ||
+				fileName === "index.tsx" ||
+				fileName === "layout.tsx" ||
+				fileName === "error.tsx" ||
+				fileName === "loading.tsx" ||
+				fileName.endsWith(".tsx")
+			) {
+				warnings.push(
+					`Missing default export in ${filePath}. Route files must export a default component.`,
+				);
+			}
+		}
+
 		return {
 			hasDefaultExport,
 			hasLoader,
 			hasAction,
 			hasMeta,
 			defaultExportName,
+			warnings: warnings.length > 0 ? warnings : undefined,
 		};
 	} catch (error) {
 		console.error(`[parser] Error parsing file ${filePath}:`, error);
@@ -80,6 +101,7 @@ export function parseFile(filePath: string): ParsedExports {
 			hasLoader: false,
 			hasAction: false,
 			hasMeta: false,
+			warnings: [`Failed to parse file: ${error}`],
 		};
 	}
 }

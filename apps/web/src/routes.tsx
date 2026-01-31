@@ -13,6 +13,7 @@ const AboutPage = lazy(() => import('./pages/(company)/about/page'));
 const AboutMissionPage = lazy(() => import('./pages/(company)/about/(mission-vision-values)/mission'));
 const AboutValuesPage = lazy(() => import('./pages/(company)/about/(mission-vision-values)/values'));
 const AboutVisionPage = lazy(() => import('./pages/(company)/about/(mission-vision-values)/vision'));
+const BlogSlugPage = lazy(() => import('./pages/blog/[[...slug]]/page'));
 import DashboardLayout from './pages/dashboard/layout';
 const DashboardPage = lazy(() => import('./pages/dashboard/page'));
 import DashboardUsersLayout from './pages/dashboard/users/layout';
@@ -21,12 +22,16 @@ const DashboardUsersPage = lazy(() => import('./pages/dashboard/users/page'));
 import { loader as dashboardUsersIdLoader } from './pages/dashboard/users/[id]/page';
 const DashboardUsersIdPage = lazy(() => import('./pages/dashboard/users/[id]/page'));
 const DashboardUsersIdEditPage = lazy(() => import('./pages/dashboard/users/[id]/edit'));
+const DocsSlugPage = lazy(() => import('./pages/docs/[...slug]/page'));
+import { meta as routingDocsMeta } from './pages/routing-docs/page';
+const RoutingDocsPage = lazy(() => import('./pages/routing-docs/page'));
+const RoutingDocsCatchAllOptionalPage = lazy(() => import('./pages/routing-docs/catch-all-optional'));
+const RoutingDocsCatchAllRequiredPage = lazy(() => import('./pages/routing-docs/catch-all-required'));
 import { loader as serverActionsLoader } from './pages/server-actions/page';
 const ServerActionsPage = lazy(() => import('./pages/server-actions/page'));
 const React19DemoPage = lazy(() => import('./pages/(react-19-demo)/react-19-demo'));
 const ClientExamplePage = lazy(() => import('./pages/client-example'));
 const NavigationTestPage = lazy(() => import('./pages/navigation-test'));
-const RoutingDocsPage = lazy(() => import('./pages/routing-docs'));
 import { loader as ssrExampleLoader } from './pages/ssr-example';
 const SsrExamplePage = lazy(() => import('./pages/ssr-example'));
 
@@ -68,6 +73,28 @@ export const routes: RouteObject[] = [
           element: <Suspense fallback={<div>Loading...</div>}>
             <AboutVisionPage />
           </Suspense>,
+        },
+      ],
+    },
+    {
+      path: "blog",
+      children: [
+        {
+          path: "*",
+          children: [
+            {
+              index: true,
+              element: <Suspense fallback={<div>Loading...</div>}>
+                <BlogSlugPage />
+              </Suspense>,
+            },
+            {
+              path: "*",
+              element: <Suspense fallback={<div>Loading...</div>}>
+                <BlogSlugPage />
+              </Suspense>,
+            },
+          ],
         },
       ],
     },
@@ -115,6 +142,41 @@ export const routes: RouteObject[] = [
       ],
     },
     {
+      path: "docs",
+      children: [
+        {
+          path: "*",
+          element: <Suspense fallback={<div>Loading...</div>}>
+            <DocsSlugPage />
+          </Suspense>,
+        },
+      ],
+    },
+    {
+      path: "routing-docs",
+      children: [
+        {
+          index: true,
+          element: <Suspense fallback={<div>Loading...</div>}>
+            <RoutingDocsPage />
+          </Suspense>,
+          handle: { meta: routingDocsMeta },
+        },
+        {
+          path: "catch-all-optional",
+          element: <Suspense fallback={<div>Loading...</div>}>
+            <RoutingDocsCatchAllOptionalPage />
+          </Suspense>,
+        },
+        {
+          path: "catch-all-required",
+          element: <Suspense fallback={<div>Loading...</div>}>
+            <RoutingDocsCatchAllRequiredPage />
+          </Suspense>,
+        },
+      ],
+    },
+    {
       path: "server-actions",
       element: <Suspense fallback={<div>Loading...</div>}>
         <ServerActionsPage />
@@ -137,12 +199,6 @@ export const routes: RouteObject[] = [
       path: "navigation-test",
       element: <Suspense fallback={<div>Loading...</div>}>
         <NavigationTestPage />
-      </Suspense>,
-    },
-    {
-      path: "routing-docs",
-      element: <Suspense fallback={<div>Loading...</div>}>
-        <RoutingDocsPage />
       </Suspense>,
     },
     {

@@ -412,7 +412,14 @@ function generateRouteObject(
 		lines.push(`${indent}{`);
 
 		// Add path
-		if (node.path === "*") {
+		// For optional catch-all, we don't add path here - children will handle it
+		if (node.isOptionalCatchAll) {
+			// Get the parent directory name as the path
+			const parentPath = node.fullPath.split("/").filter(Boolean).pop() || "";
+			if (parentPath) {
+				lines.push(`${indent}  path: "${parentPath}",`);
+			}
+		} else if (node.path === "*") {
 			lines.push(`${indent}  path: "*",`);
 		} else if (node.path) {
 			lines.push(`${indent}  path: "${node.path}",`);
@@ -426,8 +433,12 @@ function generateRouteObject(
 		const hasPageWithLayout = node.layout && node.page;
 		const hasPageWithoutLayoutButWithChildren = !node.layout && node.page && hasChildren;
 
-		// Add element (layout or page)
-		if (node.layout) {
+		// Special handling for optional catch-all [[...slug]]
+		// It needs to match both index route and wildcard route
+		if (node.isOptionalCatchAll && node.page) {
+			// Don't add element at this level - we'll create children instead
+			// This forces the route to have children (index + wildcard)
+		} else if (node.layout) {
 			// Has layout: layout becomes element, page becomes index child (if present)
 			lines.push(`${indent}  element: <${node.layout.componentName} />,`);
 		} else if (node.page && !hasChildren) {
@@ -450,11 +461,44 @@ function generateRouteObject(
 		// else: Has page WITH children but NO layout -> page becomes index child (handled below)
 
 		// Add children
-		if (hasChildren || hasPageWithLayout || hasPageWithoutLayoutButWithChildren) {
+		const needsChildren = hasChildren || hasPageWithLayout || hasPageWithoutLayoutButWithChildren || node.isOptionalCatchAll;
+
+		if (needsChildren) {
 			lines.push(`${indent}  children: [`);
 
+			// Special handling for optional catch-all: create both index and wildcard routes
+			if (node.isOptionalCatchAll && node.page) {
+				// Index route for /blog
+				lines.push(`${indent}    {`);
+				lines.push(`${indent}      index: true,`);
+				const element = wrapWithSuspense(
+					`<${node.page.componentName} />`,
+					`${indent}      `,
+					codeSplitting,
+				);
+				lines.push(`${indent}      element: ${element},`);
+				if (node.page.hasLoader && node.page.loaderName) {
+					lines.push(`${indent}      loader: ${node.page.loaderName},`);
+				}
+				if (node.page.hasMeta && node.page.metaName) {
+					lines.push(`${indent}      handle: { meta: ${node.page.metaName} },`);
+				}
+				lines.push(`${indent}    },`);
+
+				// Wildcard route for /blog/*
+				lines.push(`${indent}    {`);
+				lines.push(`${indent}      path: "*",`);
+				lines.push(`${indent}      element: ${element},`);
+				if (node.page.hasLoader && node.page.loaderName) {
+					lines.push(`${indent}      loader: ${node.page.loaderName},`);
+				}
+				if (node.page.hasMeta && node.page.metaName) {
+					lines.push(`${indent}      handle: { meta: ${node.page.metaName} },`);
+				}
+				lines.push(`${indent}    },`);
+			}
 			// If node has page (with layout OR with children but no layout), page becomes index child
-			if (hasPageWithLayout || hasPageWithoutLayoutButWithChildren) {
+			else if (hasPageWithLayout || hasPageWithoutLayoutButWithChildren) {
 				lines.push(`${indent}    {`);
 				lines.push(`${indent}      index: true,`);
 
