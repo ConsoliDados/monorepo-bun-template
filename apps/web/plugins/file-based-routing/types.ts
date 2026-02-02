@@ -25,7 +25,7 @@ export interface RouteFile {
 	/** Relative path from pages/ directory */
 	relativePath: string;
 	/** File type */
-	type: "page" | "layout" | "error" | "loading";
+	type: "page" | "layout" | "error" | "loading" | "not-found";
 	/** Whether file has default export (component) */
 	hasDefaultExport: boolean;
 	/** Whether file has loader export */
@@ -67,6 +67,8 @@ export interface RouteNode {
 	error?: RouteFile;
 	/** Loading fallback file (Phase 3) */
 	loading?: RouteFile;
+	/** Not FOund fallback file (Phase 3) */
+	notFound?: RouteFile;
 	/** Child routes */
 	children: RouteNode[];
 	/** Parent route */

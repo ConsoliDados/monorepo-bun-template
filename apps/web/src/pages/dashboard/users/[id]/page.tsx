@@ -4,6 +4,12 @@ import type { LoaderFunctionArgs } from "react-router-dom";
 import { Link, useLoaderData, useParams } from "react-router-dom";
 import { fetchUsers } from "../../_actions/users-actions.server";
 
+export const meta = {
+	title: "User - {{data.user.name}}",
+	description:
+		"Data returned for user with ID {{params.id}} and user email: {{data.user.email}}",
+};
+
 export async function loader({ params }: LoaderFunctionArgs) {
 	const { id } = params;
 	console.log(`[LOADER] users/[id] - fetching user ${id} for SSR`);

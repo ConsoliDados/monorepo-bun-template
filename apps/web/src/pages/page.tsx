@@ -13,6 +13,12 @@ import { EnvDebug } from "@/components/EnvDebug";
 import { Link } from "@/components/Link";
 import { fetchUsers } from "./_actions/users-actions.server";
 
+export const meta = {
+	title: "Home page",
+	description: "Complete guide to the tom ssr hono + vite",
+	keywords: ["routing", "file-based", "react-router", "documentation"],
+};
+
 type LoaderData = {
 	usersData: User[];
 	loadedAt: string;

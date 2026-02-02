@@ -22,13 +22,15 @@ export interface ParsedExports {
  *   "api-v2-docs" -> "ApiV2Docs"
  */
 function toPascalCase(str: string): string {
-	return str
-		// Split by - or _ or space
-		.split(/[-_\s]+/)
-		// Capitalize first letter of each word
-		.map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-		// Join together
-		.join("");
+	return (
+		str
+			// Split by - or _ or space
+			.split(/[-_\s]+/)
+			// Capitalize first letter of each word
+			.map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+			// Join together
+			.join("")
+	);
 }
 
 /**
@@ -42,7 +44,8 @@ export function parseFile(filePath: string): ParsedExports {
 
 		// Detect default export
 		const hasDefaultExport =
-			/export\s+default\s+/.test(content) || /export\s*\{\s*\w+\s+as\s+default\s*\}/.test(content);
+			/export\s+default\s+/.test(content) ||
+			/export\s*\{\s*\w+\s+as\s+default\s*\}/.test(content);
 
 		// Try to extract default export name (for better error messages)
 		let defaultExportName: string | undefined;
@@ -78,6 +81,7 @@ export function parseFile(filePath: string): ParsedExports {
 				fileName === "layout.tsx" ||
 				fileName === "error.tsx" ||
 				fileName === "loading.tsx" ||
+				fileName === "not-found.tsx" ||
 				fileName.endsWith(".tsx")
 			) {
 				warnings.push(

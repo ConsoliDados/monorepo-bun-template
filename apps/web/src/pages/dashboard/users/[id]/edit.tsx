@@ -1,3 +1,4 @@
+import type { User } from "@monorepo/api/schemas/user";
 import { Button } from "@monorepo/ui/components/button";
 import {
 	Card,
@@ -6,10 +7,53 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@monorepo/ui/components/card";
-import { Link, useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import {
+	Link,
+	type LoaderFunctionArgs,
+	useLoaderData,
+	useParams,
+} from "react-router-dom";
+import { fetchUsers } from "../../_actions/users-actions.server";
+
+export const meta = {
+	title: "User - {{data.user.name}} - Editing",
+	description:
+		"Data returned for user with ID {{params.id}} and user email: {{data.user.email}}",
+};
+
+export async function loader({ params }: LoaderFunctionArgs) {
+	const { id } = params;
+	console.log(`[LOADER] users/[id] - fetching user ${id} for SSR`);
+
+	// Fetch all users and find the one by ID
+	const users = await fetchUsers();
+	const user = users.find((u) => u.id === id);
+
+	if (!user) {
+		throw new Response("User not found", { status: 404 });
+	}
+
+	return { user };
+}
 
 export default function UserEditPage() {
 	const { id } = useParams();
+	const { user: preloadedUser } = useLoaderData() as { user: User };
+
+	// Use React Query with SSR data
+	const { data: user } = useQuery({
+		queryKey: ["user", id],
+		queryFn: async () => {
+			const users = await fetchUsers();
+			return users.find((u) => u.id === id);
+		},
+		initialData: preloadedUser,
+	});
+
+	if (!user) {
+		return <div>User not found</div>;
+	}
 
 	return (
 		<div>
@@ -28,6 +72,7 @@ export default function UserEditPage() {
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
+					{/* <form className="space-y-4" onSubmit={(e) => e.preventDefault()}> */}
 					<form className="space-y-4">
 						<div>
 							<label
@@ -41,6 +86,7 @@ export default function UserEditPage() {
 								type="text"
 								className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
 								placeholder="Enter user name"
+								defaultValue={user.name}
 							/>
 						</div>
 
@@ -56,11 +102,15 @@ export default function UserEditPage() {
 								type="email"
 								className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
 								placeholder="Enter user email"
+								defaultValue={user.email}
 							/>
 						</div>
 
 						<div className="flex gap-3 pt-4">
-							<Button type="submit" className="bg-purple-600 hover:bg-purple-700">
+							<Button
+								type="submit"
+								className="bg-purple-600 hover:bg-purple-700"
+							>
 								Save Changes
 							</Button>
 							<Link to={`/dashboard/users/${id}`}>
@@ -81,13 +131,16 @@ export default function UserEditPage() {
 									<strong>Current route:</strong> /dashboard/users/:id/edit
 								</p>
 								<p>
-									<strong>File location:</strong> pages/dashboard/users/[id]/edit.tsx
+									<strong>File location:</strong>{" "}
+									pages/dashboard/users/[id]/edit.tsx
 								</p>
 								<p>
-									<strong>Parent routes:</strong> dashboard/layout.tsx → users/layout.tsx → [id]/page.tsx
+									<strong>Parent routes:</strong> dashboard/layout.tsx →
+									users/layout.tsx → [id]/page.tsx
 								</p>
 								<p className="mt-2">
-									This demonstrates nested layouts with dynamic routes and multiple pages in the same directory!
+									This demonstrates nested layouts with dynamic routes and
+									multiple pages in the same directory!
 								</p>
 							</div>
 						</div>

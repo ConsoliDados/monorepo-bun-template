@@ -115,7 +115,7 @@ export function scanDirectory(
 export function parseFilePath(relativePath: string): {
 	segments: string[];
 	fileName: string;
-	fileType: "page" | "layout" | "error" | "loading";
+	fileType: "page" | "layout" | "error" | "loading" | "not-found";
 } {
 	// Normalize path separators
 	const normalized = relativePath.split(sep).join("/");
@@ -126,7 +126,7 @@ export function parseFilePath(relativePath: string): {
 	const segments = parts.slice(0, -1);
 
 	// Determine file type
-	let fileType: "page" | "layout" | "error" | "loading" = "page";
+	let fileType: "page" | "layout" | "error" | "loading" | "not-found" = "page";
 
 	if (fileName === "layout.tsx") {
 		fileType = "layout";
@@ -136,6 +136,8 @@ export function parseFilePath(relativePath: string): {
 		fileType = "loading";
 	} else if (fileName === "page.tsx" || fileName === "index.tsx") {
 		fileType = "page";
+	} else if (fileName === "not-found.tsx") {
+		fileType = "not-found";
 	}
 
 	return { segments, fileName, fileType };

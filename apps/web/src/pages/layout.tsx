@@ -71,9 +71,9 @@ export default function RootLayout() {
 			</nav>
 			<main>
 				<Suspense>
-					<ReactQueryDevtools position="bottom" />
+					{/* {import.meta.env.DEV && <ReactQueryDevtools />} */}
+					<Outlet />
 				</Suspense>
-				<Outlet />
 			</main>
 		</div>
 	);
