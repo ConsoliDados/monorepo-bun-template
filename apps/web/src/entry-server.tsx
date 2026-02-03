@@ -1,17 +1,22 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+	dehydrate,
+	QueryClient,
+	QueryClientProvider,
+} from "@tanstack/react-query";
+import { Hono } from "hono";
 import { renderToString } from "react-dom/server";
 import {
 	createStaticHandler,
 	createStaticRouter,
 	StaticRouterProvider,
 } from "react-router-dom/server";
-import { Hono } from "hono";
+import { applyMeta } from "../plugins/apply-meta";
 import { handleServerAction } from "../server/actions-handler";
 import { loadApiRoutes } from "../server/api-loader";
-import { createMatcher, normalizePath } from "../server/middleware/matcher";
 import { loadUserMiddleware } from "../server/middleware/loader";
+import { createMatcher, normalizePath } from "../server/middleware/matcher";
 import { routes } from "./routes";
 
 interface ViteManifestChunk {
@@ -145,6 +150,9 @@ app.use("*", async (c) => {
 		return context;
 	}
 
+	const { title, metaTags } = applyMeta(context, "React Router v6 + Hono SSR");
+	// const { title, metaTags } = applyMeta(context);
+
 	// Create static router for SSR
 	const router = createStaticRouter(handler.dataRoutes, context);
 
@@ -155,6 +163,12 @@ app.use("*", async (c) => {
 		</QueryClientProvider>,
 	);
 
+	const dehydratedState = dehydrate(queryClient);
+
+	// const appHtml = renderToPipeableStream(
+	// 	<StaticRouterProvider router={router} context={context} />,
+	// );
+
 	// Build HTML document
 	const html = `
 <!DOCTYPE html>
@@ -162,7 +176,8 @@ app.use("*", async (c) => {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>React Router v6 + Hono SSR</title>
+    <title>${title}</title>
+    ${metaTags}
     <link rel="icon" href="/favicon.ico" />
     ${appCssHrefs.map((href) => `<link rel="stylesheet" href="${href}" data-app-css="1" />`).join("\n    ")}
     ${
@@ -180,9 +195,12 @@ app.use("*", async (c) => {
     `
 		}
   </head>
-  <body>
+  <body id="root">
     ${appHtml}
     <script type="module" src="${import.meta.env.PROD ? "/static/entry-client.js" : "/src/entry-client.tsx"}"></script>
+  <script>
+    window.__REACT_QUERY_STATE__ = ${JSON.stringify(dehydratedState)}
+  </script>
   </body>
 </html>
   `.trim();

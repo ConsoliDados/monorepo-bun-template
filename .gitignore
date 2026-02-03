@@ -19,6 +19,9 @@ out/
 # TanStack Router generated files
 **/routeTree.gen.ts
 
+# File-based routing generated files
+**/.react-router/
+
 # Environment variables
 .env
 .env.local

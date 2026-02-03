@@ -12,6 +12,11 @@
 			"@monorepo/ui/*": ["../../packages/ui/src/*"]
 		}
 	},
-	"include": ["src/**/*", "server/**/*"],
+	"include": [
+		"src/**/*",
+		"server/**/*",
+		"src/.react-router/types/**/*",
+		"src/**/*.d.ts"
+	],
 	"exclude": ["node_modules"]
 }
