@@ -8,7 +8,7 @@
 		"build:client": "vite build --mode client",
 		"build:server": "vite build --ssr",
 		"build": "bun run build:client && bun run build:server",
-		"preview": "NODE_ENV=production bun run server/node.ts",
+		"preview": "NODE_ENV=production bun server.ts",
 		"build:vercel": "bun run build",
 		"build:netlify": "bun run build",
 		"build:cloudflare": "bun run build && wrangler deploy",
@@ -18,11 +18,10 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@hono/node-server": "^1.19.9",
 		"@monorepo/api": "workspace:*",
+		"@consolidados/hono-vite-runtime": "workspace:*",
 		"@monorepo/navigation": "workspace:*",
 		"@monorepo/ui": "workspace:*",
-		"@netlify/functions": "^5.1.2",
 		"@tanstack/react-devtools": "^0.7.0",
 		"@tanstack/react-query": "^5.90.20",
 		"@tanstack/react-query-devtools": "^5.84.2",

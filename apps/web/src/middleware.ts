@@ -2,7 +2,7 @@ import { getCookie } from "hono/cookie";
 import type {
 	MiddlewareConfig,
 	MiddlewareHandler,
-} from "../server/middleware/types";
+} from "@consolidados/hono-vite-runtime/server/middleware/types";
 
 /**
  * Middleware configuration

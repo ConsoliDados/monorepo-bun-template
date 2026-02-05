@@ -1,23 +1,22 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { applyMeta } from "@consolidados/hono-vite-runtime/plugins/apply-meta";
+import { createSSRHandler } from "@consolidados/hono-vite-runtime/server/hono-base";
 import {
 	dehydrate,
 	QueryClient,
 	QueryClientProvider,
 } from "@tanstack/react-query";
-import { Hono } from "hono";
-import { renderToString } from "react-dom/server";
+import { Writable } from "node:stream";
+import { renderToPipeableStream } from "react-dom/server";
 import {
 	createStaticHandler,
 	createStaticRouter,
 	StaticRouterProvider,
 } from "react-router-dom/server";
-import { applyMeta } from "../plugins/apply-meta";
-import { handleServerAction } from "../server/actions-handler";
-import { loadApiRoutes } from "../server/api-loader";
-import { loadUserMiddleware } from "../server/middleware/loader";
-import { createMatcher, normalizePath } from "../server/middleware/matcher";
 import { routes } from "./routes";
+
+// ── CSS resolution helpers ──────────────────────────────────
 
 interface ViteManifestChunk {
 	file: string;
@@ -77,55 +76,14 @@ function getAppCssHrefs(): string[] {
 	return ["/src/app.css"];
 }
 
-// Create Hono app
-const app = new Hono();
+// ── React Router static handler (created once) ─────────────
 
-// Middleware loading state
-let middlewareLoaded = false;
-let userMiddleware: Awaited<ReturnType<typeof loadUserMiddleware>> | null =
-	null;
-
-// Load user middleware lazily on first request
-app.use("*", async (c, next) => {
-	if (!middlewareLoaded) {
-		console.log("[MIDDLEWARE] Loading user middleware...");
-		userMiddleware = await loadUserMiddleware();
-		middlewareLoaded = true;
-		if (userMiddleware) {
-			console.log("[MIDDLEWARE] ✓ User middleware loaded and registered");
-		} else {
-			console.log("[MIDDLEWARE] No user middleware found - skipping");
-		}
-	}
-
-	if (userMiddleware) {
-		const { middleware, config } = userMiddleware;
-		const matcher = createMatcher(config?.matcher);
-		const path = normalizePath(c.req.path);
-
-		if (matcher(path)) {
-			return await middleware(c, next);
-		}
-	}
-
-	await next();
-});
-
-// Automatically load all API routes from server/api directory
-await loadApiRoutes(app);
-
-// Server Actions Handler
-console.log("[ENTRY-SERVER] Registering /__server-actions endpoint");
-app.post("/__server-actions", async (c) => {
-	console.log("[ENTRY-SERVER] /__server-actions endpoint called");
-	return handleServerAction(c);
-});
-
-// Create static handler from routes (React Router v6)
 const handler = createStaticHandler(routes);
 
-// SSR Route Handler
-app.use("*", async (c) => {
+// ── The render function — app-specific, React-specific ─────
+// Exported so the production bundle exposes it for hono-base to import.
+
+export async function render(request: Request): Promise<Response> {
 	const appCssHrefs = getAppCssHrefs();
 
 	// Create a fresh QueryClient for each request (SSR)
@@ -139,11 +97,8 @@ app.use("*", async (c) => {
 		},
 	});
 
-	// Create fetch request from Hono context
-	const fetchRequest = c.req.raw;
-
 	// Query the routes (runs loaders/actions)
-	const context = await handler.query(fetchRequest);
+	const context = await handler.query(request);
 
 	// If context is a Response, return it (redirects, etc.)
 	if (context instanceof Response) {
@@ -151,23 +106,42 @@ app.use("*", async (c) => {
 	}
 
 	const { title, metaTags } = applyMeta(context, "React Router v6 + Hono SSR");
-	// const { title, metaTags } = applyMeta(context);
 
 	// Create static router for SSR
 	const router = createStaticRouter(handler.dataRoutes, context);
 
-	// Render app to string
-	const appHtml = renderToString(
-		<QueryClientProvider client={queryClient}>
-			<StaticRouterProvider router={router} context={context} />
-		</QueryClientProvider>,
-	);
+	// renderToPipeableStream + onAllReady: waits for every Suspense/lazy boundary
+	// before flushing. Required in React 19 — renderToString aborts on suspend.
+	const appHtml = await new Promise<string>((resolve, reject) => {
+		const chunks: string[] = [];
+		const { pipe } = renderToPipeableStream(
+			<QueryClientProvider client={queryClient}>
+				<StaticRouterProvider router={router} context={context} />
+			</QueryClientProvider>,
+			{
+				onAllReady() {
+					pipe(
+						new Writable({
+							write(chunk, _enc, cb) {
+								chunks.push(chunk.toString());
+								cb();
+							},
+							final(cb) {
+								resolve(chunks.join(""));
+								cb();
+							},
+						}),
+					);
+				},
+				onError(err) {
+					reject(err);
+				},
+			},
+		);
+	});
 
+	// Dehydrate after the stream completes so all loader-populated queries are captured.
 	const dehydratedState = dehydrate(queryClient);
-
-	// const appHtml = renderToPipeableStream(
-	// 	<StaticRouterProvider router={router} context={context} />,
-	// );
 
 	// Build HTML document
 	const html = `
@@ -205,7 +179,16 @@ app.use("*", async (c) => {
 </html>
   `.trim();
 
-	return c.html(html);
+	return new Response(html, {
+		headers: { "content-type": "text/html; charset=utf-8" },
+	});
+}
+
+// ── Bootstrap ───────────────────────────────────────────────
+
+const app = await createSSRHandler({
+	isProduction: import.meta.env.PROD,
+	render,
 });
 
 export default app;
