@@ -163,6 +163,58 @@ import { Button } from '@monorepo/ui'
 import { Card, CardHeader, CardTitle } from '@monorepo/ui/card'
 ```
 
+## 📦 Submodule: @consolidados/hono-vite-runtime
+
+The Hono/Vite SSR runtime (`packages/web-runtime`) is maintained as an external repository and included in this monorepo as a **git submodule**. It provides the core SSR infrastructure: Vite plugins (file-based routing, server actions, web-runtime), the Hono server base, middleware system, platform adapters, and the production server entry point.
+
+### Setup After Fresh Clone
+
+After cloning this repository, initialize the submodule:
+
+```bash
+bun install        # triggers postinstall → git submodule update --init
+# OR explicitly:
+bun run setup      # git submodule update --init --recursive
+```
+
+### Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `bun run setup` | Initialize submodule after a fresh clone |
+| `bun run runtime:update` | Pull latest changes from the runtime repo (`main`) |
+| `bun run runtime:status` | Show git status inside the submodule |
+
+### Development
+
+The submodule tracks the `main` branch of `ConsoliDados/hono-vite-runtime`. To pull the latest runtime changes into your monorepo:
+
+```bash
+bun run runtime:update   # git submodule update --remote --merge
+git add packages/web-runtime
+git commit -m "chore: update hono-vite-runtime submodule"
+```
+
+### Production Pinning
+
+To lock the submodule to a specific release or release candidate:
+
+```bash
+git -C packages/web-runtime checkout v0.1.0    # pin to a specific version
+git -C packages/web-runtime checkout v0.2.0-rc  # pin to a release candidate
+```
+
+Then commit the updated submodule pointer in the monorepo:
+
+```bash
+git add packages/web-runtime
+git commit -m "chore: pin hono-vite-runtime to v0.1.0"
+```
+
+> **Rule:** Never checkout `dev` in the submodule — `dev` is internal to the runtime repository and is not intended for monorepo consumption.
+
+---
+
 ## 🌐 Server Functions
 
 This project implements a Next.js-like server functions pattern using `.server.ts` files.

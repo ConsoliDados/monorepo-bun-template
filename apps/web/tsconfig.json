@@ -9,7 +9,9 @@
 			"@monorepo/api": ["../../packages/api/src/index.ts"],
 			"@monorepo/api/*": ["../../packages/api/src/*"],
 			"@monorepo/ui": ["../../packages/ui/src/index.ts"],
-			"@monorepo/ui/*": ["../../packages/ui/src/*"]
+			"@monorepo/ui/*": ["../../packages/ui/src/*"],
+			"@consolidados/hono-vite-runtime": ["../../packages/web-runtime"],
+			"@consolidados/hono-vite-runtime/*": ["../../packages/web-runtime/*"]
 		}
 	},
 	"include": [

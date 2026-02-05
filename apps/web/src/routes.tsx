@@ -5,7 +5,7 @@
 
 import { lazy, Suspense } from 'react';
 import type { RouteObject } from 'react-router-dom';
-import { createMeta } from '../plugins/apply-meta';
+import { createMeta } from '@consolidados/hono-vite-runtime/plugins/apply-meta';
 
 // Auto-generated imports
 import Layout from './pages/layout';

@@ -1,0 +1,4 @@
+[submodule "packages/web-runtime"]
+	path = packages/web-runtime
+	url = git@github.com:ConsoliDados/hono-vite-runtime.git
+	branch = main
